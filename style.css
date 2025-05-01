@@ -1,0 +1,330 @@
+:root {
+    /* --- Color Palette based on Logo --- */
+    --primary-color: #2980b9;  /* Blue from VOLT */
+    --accent-color: #f39c12;   /* Orange/Gold from RAY */
+    --accent-darker: #e67e22; /* Darker shade for hover */
+
+    /* --- Neutrals --- */
+    --light-grey: #ecf0f1;   /* Light background grey */
+    --medium-grey: #bdc3c7;  /* Borders */
+    --dark-grey: #34495e;    /* Body text */
+    --white: #ffffff;
+
+    /* --- Semantic Colors --- */
+    --profit-color: #27ae60; /* Green for profit/benefit */
+    --loss-color: #c0392b;   /* Red for loss/cost */
+
+    /* --- Utility --- */
+    --danger-bg: #f8d7da;
+    --danger-border: #f5c6cb;
+    --danger-text: #721c24; /* Keep distinct from loss color */
+}
+
+/* --- Reset & Base --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    background-color: var(--light-grey);
+    color: var(--dark-grey);
+}
+
+/* --- Layout --- */
+.calculator-wrapper {
+    width: 100%;
+    max-width: 1400px; /* Max width for larger screens */
+    margin: 20px auto;
+    background-color: var(--white);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden; /* Ensure child elements respect border-radius */
+}
+
+#sidebar {
+    background-color: var(--white);
+    padding: 30px 35px;
+    border-right: 1px solid var(--light-grey);
+}
+
+#main-content {
+    padding: 30px 40px;
+    background-color: #fbfcfe; /* Slightly off-white for content area */
+}
+
+/* --- Sidebar Content --- */
+.sidebar-header h1 {
+    color: var(--primary-color); /* Use Primary Blue */
+    font-size: 1.6em;
+    margin-bottom: 5px;
+    /* Removed text-align: center; */
+}
+.sidebar-header p {
+    color: var(--dark-grey);
+    font-size: 0.95em;
+    /* Removed text-align: center; */
+    margin-bottom: 30px;
+}
+.sidebar-logo {
+    display: block;
+    max-width: 180px; /* Slightly larger maybe */
+    height: auto;
+    margin-bottom: 10px; /* Added margin-bottom */
+    /* Removed margin: 0 auto ... */
+}
+.company-name { /* Style for the new company name */
+    font-size: 0.9em;
+    color: var(--dark-grey);
+    margin-bottom: 20px;
+    /* Removed text-align: center; */
+}
+
+.input-form h2 {
+    font-size: 1.2em;
+    color: var(--primary-color); /* Use Primary Blue */
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--light-grey);
+    text-align: left;
+}
+
+.input-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: var(--dark-grey);
+}
+
+.input-form input[type="number"] {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 15px;
+    border: 1px solid var(--medium-grey);
+    border-radius: 5px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.input-form input[type="number"]:focus {
+    border-color: var(--accent-color); /* Use Accent Orange */
+    outline: 0;
+    box-shadow: 0 0 0 2px rgba(243, 156, 18, 0.2); /* Orange focus glow */
+}
+
+.input-form button {
+    display: block;
+    width: 100%;
+    padding: 12px 15px;
+    background-color: var(--accent-color); /* Use Accent Orange */
+    color: var(--white);
+    border: none;
+    border-radius: 5px;
+    font-size: 1.05em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    margin-top: 15px;
+}
+.input-form button:hover {
+    background-color: var(--accent-darker); /* Use Darker Orange */
+}
+.input-form button:active {
+     transform: scale(0.98);
+}
+
+.error-message {
+    color: var(--danger-text);
+    font-weight: 500;
+    font-size: 0.9em;
+    margin-top: 15px;
+    background-color: var(--danger-bg);
+    border: 1px solid var(--danger-border);
+    padding: 10px 12px;
+    border-radius: 5px;
+    text-align: left;
+}
+
+
+/* --- Main Content Styling --- */
+#main-content h2 {
+    color: var(--primary-color); /* Use Primary Blue */
+    font-size: 1.6em;
+    margin-bottom: 25px;
+    text-align: center;
+}
+#main-content h3 {
+    color: var(--primary-color); /* Use Primary Blue */
+    font-size: 1.2em;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--light-grey);
+}
+
+.results-section {
+     margin-top: 0;
+     padding-top: 0;
+     border-top: none;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+    border: 1px solid var(--light-grey);
+}
+.data-table th, .data-table td {
+    padding: 10px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--light-grey);
+}
+ .data-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    font-size: 0.9em;
+    color: var(--primary-color); /* Use Primary Blue */
+    white-space: nowrap;
+    border-bottom-width: 2px;
+    border-bottom-color: var(--light-grey);
+ }
+ .data-table td {
+     font-size: 0.9em;
+     color: var(--dark-grey);
+     /* Ensure vertical alignment is good */
+     vertical-align: middle;
+ }
+.data-table tr:last-child td {
+     border-bottom: none;
+}
+
+.data-table td:nth-child(n+2) { /* Right-align numeric data columns */
+     text-align: right;
+     font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+     font-size: 0.9em;
+}
+ .data-table .metric-col {
+     text-align: left;
+     font-weight: 500;
+     font-family: inherit;
+ }
+ .highlight-row td {
+    background-color: rgba(243, 156, 18, 0.08) !important; /* Subtle Orange highlight */
+    color: var(--primary-color);
+    font-weight: 600;
+ }
+ .summary-text {
+    text-align: center;
+    font-weight: 500;
+    margin-top: 10px;
+    margin-bottom: 25px;
+    font-size: 1em;
+    color: var(--primary-color); /* Use Primary Blue */
+ }
+
+ /* --- Profit/Loss Text Colors --- */
+ .text-profit {
+     color: var(--profit-color) !important; /* Use !important to ensure override */
+     font-weight: 500;
+ }
+ .text-loss {
+     color: var(--loss-color) !important; /* Use !important to ensure override */
+     font-weight: 500;
+ }
+
+
+/* --- Explanation Section --- */
+.explanation-section {
+    margin-top: 35px;
+    padding-top: 25px;
+    border-top: 1px solid var(--light-grey);
+}
+.explanation-section h2 { font-size: 1.4em; text-align: left; color: var(--primary-color); }
+.explanation-section h3 {
+     color: var(--primary-color); /* Use Primary Blue */
+     font-size: 1.1em;
+     margin-top: 15px;
+     margin-bottom: 10px;
+     border-bottom: none;
+}
+.explanation-section p {
+    margin-bottom: 12px;
+    font-size: 0.9em;
+    color: var(--dark-grey);
+}
+.explanation-section strong {
+     color: var(--primary-color); /* Use Primary Blue */
+     font-weight: 600;
+}
+ .explanation-section .note {
+    font-size: 0.8em;
+    color: #7f8c8d;
+    margin-top: 20px;
+    border-top: 1px dashed var(--medium-grey);
+    padding-top: 15px;
+ }
+  .explanation-section ul {
+    list-style-position: outside;
+    padding-left: 18px;
+    font-size: 0.9em;
+  }
+   .explanation-section li {
+     margin-bottom: 4px;
+   }
+
+/* --- Formulas Section --- */
+.formulas-section {
+    margin-top: 35px;
+    padding-top: 25px;
+    border-top: 1px solid var(--light-grey);
+    background-color: var(--white);
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.formulas-section h2 {
+    color: var(--primary-color);
+    font-size: 1.4em;
+    text-align: left;
+    margin-bottom: 20px;
+}
+.formulas-section code {
+    display: block;
+    background-color: var(--light-grey);
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    border-radius: 4px;
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    font-size: 0.85em;
+    color: var(--dark-grey);
+    white-space: pre-wrap; /* Allow wrapping */
+    word-break: break-word; /* Break long words if needed */
+}
+.formulas-section p {
+    font-size: 0.9em;
+    margin-bottom: 5px;
+    color: var(--dark-grey);
+    font-weight: 500;
+}
+
+
+/* --- Responsive (Basic Example) --- */
+@media (max-width: 900px) {
+    .calculator-wrapper {
+        flex-direction: column;
+        margin: 10px;
+        max-width: 100%;
+    }
+    #sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--light-grey);
+        max-height: 60vh; /* Adjust height for mobile */
+    }
+    #main-content {
+         padding: 20px;
+    }
+     .input-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+     }
+} 

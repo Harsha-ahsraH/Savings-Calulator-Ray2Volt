@@ -267,6 +267,7 @@ function generateBreakevenTable(
 ) {
     const container = document.getElementById('breakevenAnalysis');
     const annualEMI = monthlyEMI * 12;
+    // Always show 25 years on all screen sizes
     const maxYears = 25;
     let cumulativeNetCashFlow = -netInitialCost;
     const inflationFactor = 1 + (inflationRate / 100);
@@ -329,7 +330,7 @@ function generateBreakevenTable(
 
     tableHTML += `</tbody></table>`;
 
-    // Summary text generation remains the same
+    // Summary text generation
     let summary = '';
     let returnValue = '';
      if (breakevenYearNum === 0) {

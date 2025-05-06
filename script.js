@@ -310,11 +310,11 @@ function generateBreakevenTable(
  // --- Optional: Pre-fill Example on Load ---
  window.onload = () => {
     document.getElementById('kwInstalled').value = 3;
-    document.getElementById('totalCost').value = 220000;
+    document.getElementById('totalCost').value = 230000;
     document.getElementById('subsidyAmount').value = 78000;
-    document.getElementById('downPayment').value = 44000;
+    document.getElementById('downPayment').value = 32000;
     document.getElementById('loanTenure').value = 10;
-    document.getElementById('interestRate').value = 6.5;
+    document.getElementById('interestRate').value = 6.75;
     document.getElementById('unitsPerKwDay').value = 3.2;
     document.getElementById('avgUnitsConsumed').value = 400;
     document.getElementById('costPerUnit').value = 8;

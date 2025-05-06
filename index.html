@@ -6,8 +6,8 @@
     <title>Ray2Volt Solar - Savings Calculator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;700&family=Nunito+Sans+Expanded:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css"> <!-- Link to external CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600;700&family=Nunito+Sans+Expanded:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style type="text/tailwindcss">
         body {
@@ -16,74 +16,97 @@
       </style>
 </head>
 <body class="h-screen">
-    <div class="calculator-wrapper flex">
-        <aside id="sidebar" class="h-screen sticky top-0 overflow-y-auto w-96">
-            <div class="sidebar-header flex flex-col items-start">
-                <img src="logo.png" alt="Ray2Volt Solar Logo" class="sidebar-logo mb-1 w-40">
-                <p class="company-name font-bold mt-0 text-lg w-40">Ray2Volt Solar Pvt Ltd</p>
+    <div class="calculator-wrapper">
+        <aside id="sidebar">
+            <div class="sidebar-header">
+                <img src="logo.png" alt="Ray2Volt Solar Logo" class="sidebar-logo mb-2 w-40">
+                <h1 class="company-name font-bold mt-0 text-xl">Ray2Volt Solar</h1>
+                <p class="text-sm opacity-75">Solar Investment Calculator</p>
             </div>
+            
             <form id="solarForm" class="input-form" onsubmit="return false;">
-                 <h2 class="font-bold">Project & Finance</h2>
-                 <div>
-                    <label for="totalCost" class="font-bold text-lg">1. Total Project Cost (₹):</label>
-                    <input type="number" id="totalCost" step="100" required placeholder="e.g., 220000" class="text-lg">
+                <h2 class="font-bold">Project & Finance</h2>
+                
+                <div class="input-group">
+                    <label for="kwInstalled" class="font-bold text-lg">Solar System Capacity:</label>
+                    <select id="kwInstalled" onchange="calculateSavings()" class="text-lg">
+                        <option value="" disabled selected>Select kW Capacity</option>
+                        <option value="2">2 kW</option>
+                        <option value="3">3 kW</option>
+                        <option value="4">4 kW</option>
+                        <option value="5">5 kW</option>
+                        <option value="6">6 kW</option>
+                        <option value="8">8 kW</option>
+                        <option value="10">10 kW</option>
+                    </select>
                 </div>
-                 <div>
-                    <label for="subsidyAmount" class="font-bold text-lg">2. Subsidy Amount (₹):</label>
+                
+                <div class="input-group">
+                    <label for="totalCost" class="font-bold text-lg">Total Project Cost (₹):</label>
+                    <input type="number" id="totalCost" value="370000" readonly placeholder="Auto-calculated based on kW capacity" class="text-lg">
+                    <small>Auto-calculated based on the selected kW capacity.</small>
+                </div>
+                
+                <div class="input-group">
+                    <label for="subsidyAmount" class="font-bold text-lg">Subsidy Amount (₹):</label>
                     <input type="number" id="subsidyAmount" step="100" required placeholder="e.g., 40000" value="0" class="text-lg">
                 </div>
-                <div>
-                    <label for="downPayment" class="font-bold text-lg">3. Down Payment (₹):</label>
+                
+                <div class="input-group">
+                    <label for="downPayment" class="font-bold text-lg">Down Payment (₹):</label>
                     <input type="number" id="downPayment" step="100" required placeholder="e.g., 50000" class="text-lg">
                 </div>
-                <div>
-                    <label for="loanTenure" class="font-bold text-lg">4. Loan Tenure (Years):</label>
+                
+                <div class="input-group">
+                    <label for="loanTenure" class="font-bold text-lg">Loan Tenure (Years):</label>
                     <input type="number" id="loanTenure" step="1" required placeholder="e.g., 5" class="text-lg">
                 </div>
-                 <div>
-                    <label for="interestRate" class="font-bold text-lg">5. Annual Loan Interest Rate (%):</label>
+                
+                <div class="input-group">
+                    <label for="interestRate" class="font-bold text-lg">Annual Interest Rate (%):</label>
                     <input type="number" id="interestRate" step="0.1" required placeholder="e.g., 9.5" class="text-lg">
                 </div>
 
-                <h2 class="font-bold">System & Usage</h2>
-                  <div>
-                    <label for="kwInstalled" class="font-bold text-lg">6. System Size (kW Installed):</label>
-                    <input type="number" id="kwInstalled" step="0.1" required placeholder="e.g., 3" class="text-lg">
-                </div>
-                 <div>
-                    <label for="unitsPerKwDay" class="font-bold text-lg">7. Avg. Daily Units / kW (kWh):</label>
+                <h2 class="font-bold">Energy Consumption</h2>
+                
+                <div class="input-group">
+                    <label for="unitsPerKwDay" class="font-bold text-lg">Daily Units / kW (kWh):</label>
                     <input type="number" id="unitsPerKwDay" step="0.1" required placeholder="e.g., 4.5" value="4.5" class="text-lg">
-                 </div>
-                <div>
-                    <label for="avgUnitsConsumed" class="font-bold text-lg">8. Avg. Monthly Units Consumed (kWh):</label>
+                </div>
+                
+                <div class="input-group">
+                    <label for="avgUnitsConsumed" class="font-bold text-lg">Monthly Consumption (kWh):</label>
                     <input type="number" id="avgUnitsConsumed" step="1" required placeholder="e.g., 400" class="text-lg">
                 </div>
-                <div>
-                    <label for="costPerUnit" class="font-bold text-lg">9. Current Grid Cost / Unit (₹/kWh):</label>
+                
+                <div class="input-group">
+                    <label for="costPerUnit" class="font-bold text-lg">Grid Cost / Unit (₹/kWh):</label>
                     <input type="number" id="costPerUnit" step="0.01" required placeholder="e.g., 7.50" class="text-lg">
                 </div>
-                 <div>
-                    <label for="inflationRate" class="font-bold text-lg">10. Annual Electricity Inflation (%):</label>
+                
+                <div class="input-group">
+                    <label for="inflationRate" class="font-bold text-lg">Electricity Inflation (%):</label>
                     <input type="number" id="inflationRate" step="0.1" required placeholder="e.g., 4.0" value="4.0" class="text-lg">
                 </div>
-                <div>
-                    <label for="netMeteringRate" class="font-bold text-lg">11. Current Export Rate (₹/kWh):</label>
+                
+                <div class="input-group">
+                    <label for="netMeteringRate" class="font-bold text-lg">Export Rate (₹/kWh):</label>
                     <input type="number" id="netMeteringRate" step="0.01" required placeholder="e.g., 3.50" class="text-lg">
                 </div>
 
-                <button type="button" onclick="calculateSavings()" class="font-bold">Calculate Savings</button>
+                <button type="button" onclick="calculateSavings()" class="calculate-btn font-bold">Calculate Savings</button>
                 <div id="errorMessage" class="error-message" style="display: none;"></div>
             </form>
         </aside>
 
         <main id="main-content" class="flex-grow h-screen overflow-y-auto">
             <div id="initialMessage" style="text-align: center; padding: 50px 20px; color: var(--dark-grey);">
-                <h2 class="font-bold">Welcome!</h2>
+                <h2 class="font-bold">Welcome to Solar Savings Calculator</h2>
                 <p>Enter your details in the sidebar to calculate your potential solar savings.</p>
             </div>
 
             <div id="resultsSection" class="results-section" style="display: none;">
-                <h2 class="font-bold">Calculation Results</h2>
+                <h2 class="font-bold">Solar Investment Analysis</h2>
 
                 <!-- Main Results Table -->
                 <table id="resultsTable" class="data-table">

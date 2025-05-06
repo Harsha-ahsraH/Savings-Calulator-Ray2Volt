@@ -46,22 +46,66 @@ function calculateSavings() {
     let inputs = {};
     let errors = [];
     const inputIds = [
-        'totalCost', 'subsidyAmount', 'downPayment', 'loanTenure',
+        // 'totalCost', // totalCost will now be derived
+        'subsidyAmount', 'downPayment', 'loanTenure',
         'interestRate', 'kwInstalled', 'unitsPerKwDay', 'avgUnitsConsumed',
         'costPerUnit', 'inflationRate', 'netMeteringRate'
     ];
 
     inputIds.forEach(id => {
         const element = document.getElementById(id);
-        const value = (id === 'loanTenure') ? parseInt(element.value, 10) : parseFloat(element.value);
+        const value = (id === 'loanTenure' || id === 'kwInstalled') ? parseInt(element.value, 10) : parseFloat(element.value); // kwInstalled should also be an integer from select
+        // Allow negative for interestRate, subsidyAmount, downPayment, inflationRate, netMeteringRate
+        // For others, check if value is NaN or < 0
         if (isNaN(value) || (value < 0 && !['interestRate', 'subsidyAmount', 'downPayment', 'inflationRate', 'netMeteringRate'].includes(id))) {
              let fieldName = element.previousElementSibling.innerText.replace(/[:\d.]/g, '').trim();
-             errors.push(`Enter a valid value for ${fieldName}.`);
-             inputs[id] = NaN;
+            // Special handling for kwInstalled if it's the one causing an issue with this basic check,
+            // as its specific value will be checked later. It should not be negative.
+             if (id === 'kwInstalled' && (isNaN(value) || value <= 0)) { // kW must be positive and selected
+                errors.push(`Select a valid kW Installed Capacity.`);
+             } else if (id !== 'kwInstalled') { // For other fields
+                errors.push(`Enter a valid value for ${fieldName}.`);
+             }
+             inputs[id] = NaN; // Mark as NaN if invalid
         } else {
             inputs[id] = value;
         }
     });
+
+    // Define the kW to Cost mapping
+    const kwCostMap = {
+        2: 170000,
+        3: 230000,
+        4: 310000,
+        5: 370000,
+        6: 420000,
+        8: 530000,
+        10: 630000
+    };
+
+    // Determine totalCost based on kwInstalled
+    if (inputs.kwInstalled !== undefined && !isNaN(inputs.kwInstalled)) {
+        if (kwCostMap.hasOwnProperty(inputs.kwInstalled)) {
+            inputs.totalCost = kwCostMap[inputs.kwInstalled];
+            // Update the totalCost input field display
+            const totalCostInput = document.getElementById('totalCost');
+            if (totalCostInput) {
+                totalCostInput.value = inputs.totalCost;
+            }
+        } else {
+            // This case should ideally not be reached if using a select dropdown with predefined values
+            // but kept for robustness if kwInstalled somehow gets an unexpected value.
+            errors.push("Project cost not defined for the selected kW capacity. Please select a valid capacity.");
+            inputs.totalCost = NaN; // Ensure totalCost is NaN if not found
+        }
+    } else {
+        // This handles cases where kwInstalled might not have been properly parsed (e.g. placeholder selected)
+        if (!errors.some(e => e.includes("kW Installed Capacity"))) { // Avoid duplicate error for kW
+             errors.push("Select a kW Installed Capacity.");
+        }
+        inputs.totalCost = NaN;
+    }
+
 
      // Cross-Validations
      if (!isNaN(inputs.subsidyAmount) && !isNaN(inputs.totalCost) && inputs.subsidyAmount > inputs.totalCost) { errors.push("Subsidy cannot exceed Total Cost."); }

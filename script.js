@@ -359,8 +359,8 @@ function generateBreakevenTable(
     document.getElementById('subsidyAmount').value = 78000;
     document.getElementById('downPayment').value = 32000;
     document.getElementById('loanTenure').value = 10;
-    document.getElementById('interestRate').value = 6.75;
-    document.getElementById('unitsPerKwDay').value = 3.2;
+    document.getElementById('interestRate').value = 6.5;
+    document.getElementById('unitsPerKwDay').value = 3.5;
     document.getElementById('avgUnitsConsumed').value = 400;
     document.getElementById('costPerUnit').value = 8;
     document.getElementById('inflationRate').value = 4.0;

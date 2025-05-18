@@ -49,7 +49,7 @@ function calculateSavings() {
         // 'totalCost', // totalCost will now be derived
         'subsidyAmount', 'downPayment', 'loanTenure',
         'interestRate', 'kwInstalled', 'unitsPerKwDay', 'avgUnitsConsumed',
-        'costPerUnit', 'inflationRate', 'netMeteringRate'
+        'costPerUnit', 'additionalCharges', 'inflationRate', 'netMeteringRate'
     ];
 
     inputIds.forEach(id => {
@@ -128,6 +128,7 @@ function calculateSavings() {
     // --- 2. Core Calculations (Financial & Annual Energy Balance) ---
     const netProjectCost = Math.max(0, inputs.totalCost - inputs.subsidyAmount);
     const loanAmount = Math.max(0, netProjectCost - inputs.downPayment);
+    const additionalCharges = isNaN(inputs.additionalCharges) ? 0 : inputs.additionalCharges;
 
     let monthlyEMI = 0;
     let totalLoanPaid = 0;
@@ -151,10 +152,10 @@ function calculateSavings() {
     const annualUnitsConsumed = inputs.avgUnitsConsumed * 12;
     const annualUnitsImported_Y1 = Math.max(0, annualUnitsConsumed - annualSolarGeneration);
     const annualUnitsExported_Y1 = Math.max(0, annualSolarGeneration - annualUnitsConsumed);
-    const annualBillBeforeSolar_Y1 = annualUnitsConsumed * inputs.costPerUnit;
+    const annualBillBeforeSolar_Y1 = (annualUnitsConsumed * inputs.costPerUnit) + (additionalCharges * 12);
     const annualCostOfImported_Y1 = annualUnitsImported_Y1 * inputs.costPerUnit;
     const annualCreditForExported_Y1 = annualUnitsExported_Y1 * inputs.netMeteringRate;
-    const annualBillAfterSolar_Y1 = annualCostOfImported_Y1 - annualCreditForExported_Y1;
+    const annualBillAfterSolar_Y1 = (annualCostOfImported_Y1 - annualCreditForExported_Y1) + (additionalCharges * 12);
     const annualSavings_Y1 = annualBillBeforeSolar_Y1 - annualBillAfterSolar_Y1;
     const avgMonthlyBillBefore_Y1 = annualBillBeforeSolar_Y1 / 12;
     const avgMonthlyBillAfter_Y1 = annualBillAfterSolar_Y1 / 12;
@@ -210,6 +211,7 @@ function calculateSavings() {
            avgMonthlySavings_Y1,
            avgMonthlySavings_Y1 > 0 // Apply color if positive savings
     );
+    addRow('Additional Charges (Monthly)', formatCurrency(additionalCharges));
 
 
     let simplePaybackText = "N/A";
@@ -250,6 +252,7 @@ function generateMonthlyComparisonTable(avgBillBefore_Y1, avgBillAfter_Y1, emi, 
         </thead>
         <tbody>
             <tr><td class="metric-col">Electricity Bill (Before Solar)</td><td>${formatCurrency(avgBillBefore_Y1)}</td></tr>
+            <tr><td class="metric-col">Additional Charges</td><td>${formatCurrency(additionalCharges)}</td></tr>
             <tr><td class="metric-col">Est. Bill (After Solar, Annualized)</td><td><span class="${getColorClass(avgBillAfter_Y1 < 0 ? 1 : -1)}">${formatCurrency(avgBillAfter_Y1)} ${avgBillAfter_Y1 < 0 ? '(Avg. Credit)' : ''}</span></td></tr>
             <tr><td class="metric-col">Loan EMI (if applicable)</td><td>${formatCurrency(emi)}</td></tr>
             <tr><td class="metric-col"><strong>Total Avg. Monthly Outlay</strong></td><td><strong>${formatCurrency(totalAvgMonthlyOutlay)}</strong></td></tr>

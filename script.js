@@ -46,27 +46,31 @@ function calculateSavings() {
     let inputs = {};
     let errors = [];
     const inputIds = [
-        // 'totalCost', // totalCost will now be derived
         'subsidyAmount', 'downPayment', 'loanTenure',
         'interestRate', 'kwInstalled', 'unitsPerKwDay', 'avgUnitsConsumed',
         'costPerUnit', 'additionalCharges', 'inflationRate', 'netMeteringRate'
     ];
 
+    // Clear previous error highlights
+    inputIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('input-error');
+    });
+
     inputIds.forEach(id => {
         const element = document.getElementById(id);
-        const value = (id === 'loanTenure' || id === 'kwInstalled') ? parseInt(element.value, 10) : parseFloat(element.value); // kwInstalled should also be an integer from select
-        // Allow negative for interestRate, subsidyAmount, downPayment, inflationRate, netMeteringRate
-        // For others, check if value is NaN or < 0
+        const value = (id === 'loanTenure' || id === 'kwInstalled')
+            ? parseInt(element.value, 10)
+            : parseFloat(element.value);
         if (isNaN(value) || (value < 0 && !['interestRate', 'subsidyAmount', 'downPayment', 'inflationRate', 'netMeteringRate'].includes(id))) {
-             let fieldName = element.previousElementSibling.innerText.replace(/[:\d.]/g, '').trim();
-            // Special handling for kwInstalled if it's the one causing an issue with this basic check,
-            // as its specific value will be checked later. It should not be negative.
-             if (id === 'kwInstalled' && (isNaN(value) || value <= 0)) { // kW must be positive and selected
+            element.classList.add('input-error');
+            let fieldName = element.previousElementSibling.innerText.replace(/[:\d.]/g, '').trim();
+            if (id === 'kwInstalled' && (isNaN(value) || value <= 0)) {
                 errors.push(`Select a valid kW Installed Capacity.`);
-             } else if (id !== 'kwInstalled') { // For other fields
+            } else if (id !== 'kwInstalled') {
                 errors.push(`Enter a valid value for ${fieldName}.`);
-             }
-             inputs[id] = NaN; // Mark as NaN if invalid
+            }
+            inputs[id] = NaN;
         } else {
             inputs[id] = value;
         }
@@ -354,9 +358,22 @@ function generateBreakevenTable(
     return returnValue;
 }
 
+// --- New: Reset Form Function ---
+function resetForm() {
+    ['subsidyAmount','downPayment','loanTenure','interestRate','kwInstalled','unitsPerKwDay','avgUnitsConsumed','costPerUnit','additionalCharges','inflationRate','netMeteringRate']
+    .forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.value = ''; el.classList.remove('input-error'); }
+    });
+    const totalEl = document.getElementById('totalCost');
+    if (totalEl) totalEl.value = '';
+    document.getElementById('errorMessage').style.display = 'none';
+    document.getElementById('resultsSection').style.display = 'none';
+    document.getElementById('initialMessage').style.display = 'block';
+}
 
- // --- Optional: Pre-fill Example on Load ---
- window.onload = () => {
+// --- Hook Reset Button Onload ---
+window.onload = () => {
     document.getElementById('kwInstalled').value = 3;
     document.getElementById('totalCost').value = 230000;
     document.getElementById('subsidyAmount').value = 78000;
@@ -372,6 +389,5 @@ function generateBreakevenTable(
     document.getElementById('initialMessage').style.display = 'block';
     document.getElementById('resultsSection').style.display = 'none';
 
-    // Uncomment below to run calculation automatically on load
-    // calculateSavings();
- }; 
+    document.getElementById('resetBtn').addEventListener('click', resetForm);
+};

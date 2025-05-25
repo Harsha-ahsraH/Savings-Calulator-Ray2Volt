@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans+Expanded:wght@400;700&display=swap');
+
 :root {
     /* --- Color Palette based on Logo --- */
     --primary-color: #2980b9;  /* Blue from VOLT */
@@ -41,7 +43,7 @@
 }
 
 body {
-    font-family: 'League Spartan', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: 'Nunito Sans Expanded', sans-serif;
     line-height: 1.6;
     background-color: var(--light-grey);
     color: var(--dark-grey);

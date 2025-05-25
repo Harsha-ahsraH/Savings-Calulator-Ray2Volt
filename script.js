@@ -48,7 +48,7 @@ function calculateSavings() {
     const inputIds = [
         'subsidyAmount', 'downPayment', 'loanTenure',
         'interestRate', 'kwInstalled', 'unitsPerKwDay', 'avgUnitsConsumed',
-        'costPerUnit', 'additionalCharges', 'inflationRate', 'netMeteringRate'
+        'costPerUnit', 'additionalCharges', 'inflationRate', 'netMeteringRate', 'totalCost', 'manualKwInput'
     ];
 
     // Clear previous error highlights
@@ -59,15 +59,34 @@ function calculateSavings() {
 
     inputIds.forEach(id => {
         const element = document.getElementById(id);
-        const value = (id === 'loanTenure' || id === 'kwInstalled')
-            ? parseInt(element.value, 10)
+        if (!element) return; // Skip if element doesn't exist (like manualKwInput if not visible)
+        const value = (id === 'loanTenure' || id === 'kwInstalled' || id === 'manualKwInput')
+            ? parseInt(element.value, 10) // Consider manualKwInput as potentially integer or float later
             : parseFloat(element.value);
-        if (isNaN(value) || (value < 0 && !['interestRate', 'subsidyAmount', 'downPayment', 'inflationRate', 'netMeteringRate'].includes(id))) {
+
+        // Allow totalCost and manualKwInput to be potentially empty initially
+        if ((id === 'totalCost' || id === 'manualKwInput') && (element.value === '' || element.value === null)) {
+            inputs[id] = NaN; 
+        } else if (id === 'kwInstalled' && element.value === 'manual') {
+            inputs[id] = 'manual'; // Store 'manual' string to signify manual mode
+            document.getElementById('manualKwInputGroup').style.display = 'block';
+        } else if (id === 'kwInstalled' && element.value !== 'manual') {
+            document.getElementById('manualKwInputGroup').style.display = 'none';
+            inputs['manualKwInput'] = NaN; // Clear manual input if a fixed kW is chosen
+            if (document.getElementById('manualKwInput')) document.getElementById('manualKwInput').value = '';
+            if (isNaN(value) || value <= 0) { // Standard validation for fixed kW
+                element.classList.add('input-error');
+                errors.push(`Select a valid kW Installed Capacity.`);
+                inputs[id] = NaN;
+            } else {
+                inputs[id] = value;
+            }
+        } else if (isNaN(value) || (value < 0 && !['interestRate', 'subsidyAmount', 'downPayment', 'inflationRate', 'netMeteringRate'].includes(id))) {
             element.classList.add('input-error');
             let fieldName = element.previousElementSibling.innerText.replace(/[:\d.]/g, '').trim();
-            if (id === 'kwInstalled' && (isNaN(value) || value <= 0)) {
-                errors.push(`Select a valid kW Installed Capacity.`);
-            } else if (id !== 'kwInstalled') {
+            if (id === 'manualKwInput' && (isNaN(value) || value <= 0)){
+                errors.push('Enter a valid Manual System Capacity (kW) > 0.');
+            } else if (id === 'kwInstalled' && (isNaN(value) || value <= 0)) { // This should not be hit if 'manual' is selected
                 errors.push(`Enter a valid value for ${fieldName}.`);
             }
             inputs[id] = NaN;
@@ -85,29 +104,94 @@ function calculateSavings() {
         6: 420000,
         8: 530000,
         10: 630000
+        // No values beyond 10kW as per requirement
     };
 
-    // Determine totalCost based on kwInstalled
-    if (inputs.kwInstalled !== undefined && !isNaN(inputs.kwInstalled)) {
-        if (kwCostMap.hasOwnProperty(inputs.kwInstalled)) {
-            inputs.totalCost = kwCostMap[inputs.kwInstalled];
-            // Update the totalCost input field display
-            const totalCostInput = document.getElementById('totalCost');
-            if (totalCostInput) {
-                totalCostInput.value = inputs.totalCost;
-            }
+    const totalCostInput = document.getElementById('totalCost');
+    let userProvidedTotalCost = parseFloat(totalCostInput.value);
+
+    // Handle kwInstalled logic, including manual entry
+    let actualKwInstalled = NaN;
+    const kwSelectedOption = document.getElementById('kwInstalled').value;
+
+    if (kwSelectedOption === 'manual') {
+        document.getElementById('manualKwInputGroup').style.display = 'block';
+        actualKwInstalled = parseFloat(document.getElementById('manualKwInput').value);
+        if (isNaN(actualKwInstalled) || actualKwInstalled <= 0) {
+            errors.push("Enter a valid Manual System Capacity (kW) > 0.");
+            const manKwEl = document.getElementById('manualKwInput');
+            if(manKwEl) manKwEl.classList.add('input-error');
+        }
+        inputs.kwInstalled = actualKwInstalled; // Use manual value
+        // For manual kW entry, totalCost is always manual, don't auto-fill from map
+        if (!isNaN(userProvidedTotalCost) && userProvidedTotalCost > 0) {
+            inputs.totalCost = userProvidedTotalCost;
         } else {
-            // This case should ideally not be reached if using a select dropdown with predefined values
-            // but kept for robustness if kwInstalled somehow gets an unexpected value.
-            errors.push("Project cost not defined for the selected kW capacity. Please select a valid capacity.");
-            inputs.totalCost = NaN; // Ensure totalCost is NaN if not found
+            inputs.totalCost = NaN; // Requires manual input or will be caught by validation
+            totalCostInput.placeholder = "Enter project cost manually";
         }
-    } else {
-        // This handles cases where kwInstalled might not have been properly parsed (e.g. placeholder selected)
-        if (!errors.some(e => e.includes("kW Installed Capacity"))) { // Avoid duplicate error for kW
-             errors.push("Select a kW Installed Capacity.");
+        totalCostInput.dataset.previousKw = 'manual';
+    } else if (kwSelectedOption && kwSelectedOption !== "") {
+        document.getElementById('manualKwInputGroup').style.display = 'none';
+        document.getElementById('manualKwInput').value = ''; // Clear manual input
+        actualKwInstalled = parseInt(kwSelectedOption, 10);
+        inputs.kwInstalled = actualKwInstalled; // Use selected fixed value
+
+        // Auto-fill logic for totalCost based on fixed kW selection
+        if (kwCostMap.hasOwnProperty(actualKwInstalled)) {
+            let currentCostIsDefaultForSelectedKw = false;
+            if (!isNaN(userProvidedTotalCost)) {
+                 for (const kw in kwCostMap) {
+                    if (kwCostMap[kw] === userProvidedTotalCost && parseInt(kw) === actualKwInstalled) {
+                        currentCostIsDefaultForSelectedKw = true;
+                        break;
+                    }
+                 }
+            }
+
+            if (isNaN(userProvidedTotalCost) || !currentCostIsDefaultForSelectedKw || totalCostInput.value === '' || (totalCostInput.dataset.previousKw && totalCostInput.dataset.previousKw !== String(actualKwInstalled))) {
+                 totalCostInput.value = kwCostMap[actualKwInstalled];
+                 inputs.totalCost = kwCostMap[actualKwInstalled];
+                 userProvidedTotalCost = inputs.totalCost;
+            } else {
+                 inputs.totalCost = userProvidedTotalCost;
+            }
+            totalCostInput.dataset.previousKw = actualKwInstalled;
+        } else {
+            // Should not happen with current dropdown, but for robustness
+            if (totalCostInput.value === '' || isNaN(userProvidedTotalCost)){
+                totalCostInput.placeholder = "Enter project cost manually";
+                inputs.totalCost = NaN; 
+             } else {
+                inputs.totalCost = userProvidedTotalCost; 
+             }
+             totalCostInput.dataset.previousKw = ''; 
         }
-        inputs.totalCost = NaN;
+    } else { // No selection or placeholder selected
+        document.getElementById('manualKwInputGroup').style.display = 'none';
+        // document.getElementById('manualKwInput').value = ''; // Clear if not manual
+        inputs.kwInstalled = NaN;
+        if (!errors.some(e => e.includes("kW Installed Capacity"))) {
+            errors.push("Select a kW Installed Capacity.");
+        }
+        if (!isNaN(userProvidedTotalCost)) {
+            inputs.totalCost = userProvidedTotalCost;
+        } else {
+            inputs.totalCost = NaN;
+        }
+        totalCostInput.dataset.previousKw = '';
+    }
+
+    // Re-assign inputs.kwInstalled for calculation with the actual numeric value
+    inputs.kwInstalled = actualKwInstalled;
+
+    // Validate totalCost finally
+    if (isNaN(inputs.totalCost) || inputs.totalCost <= 0) {
+        const tcElement = document.getElementById('totalCost');
+        if(tcElement) tcElement.classList.add('input-error');
+        if (!errors.some(e => e.includes("Total Project Cost") || e.includes("kW Installed Capacity"))) {
+             errors.push("Enter a valid Total Project Cost or select a kW capacity to auto-fill.");
+        }
     }
 
 
@@ -229,7 +313,8 @@ function calculateSavings() {
     const financedBreakevenYearText = generateBreakevenTable(
         netProjectCost, monthlyEMI, inputs.loanTenure,
         annualUnitsConsumed, annualSolarGeneration,
-        inputs.costPerUnit, inputs.netMeteringRate, inputs.inflationRate
+        inputs.costPerUnit, inputs.netMeteringRate, inputs.inflationRate,
+        additionalCharges
     );
 
     addRow('Financed Breakeven Year (Incl. Inflation)', financedBreakevenYearText); // Add last
@@ -242,6 +327,7 @@ function calculateSavings() {
 // --- Helper: Generate Monthly Comparison Table (Year 1 Average Snapshot) ---
 function generateMonthlyComparisonTable(avgBillBefore_Y1, avgBillAfter_Y1, emi, avgSavings_Y1) {
      const container = document.getElementById('monthlyCostsComparison');
+     const additionalCharges = parseFloat(document.getElementById('additionalCharges').value) || 0; // Get additional charges here
      const avgBillAfterPositive = Math.max(0, avgBillAfter_Y1);
      const totalAvgMonthlyOutlay = avgBillAfterPositive + emi;
      const netAvgMonthlyImpact = avgSavings_Y1 - emi;
@@ -270,7 +356,8 @@ function generateMonthlyComparisonTable(avgBillBefore_Y1, avgBillAfter_Y1, emi, 
 function generateBreakevenTable(
     netInitialCost, monthlyEMI, loanTenure,
     annualUnitsConsumed, annualSolarGeneration,
-    initialCostPerUnit, initialNetMeteringRate, inflationRate
+    initialCostPerUnit, initialNetMeteringRate, inflationRate,
+    initialMonthlyAdditionalCharges
 ) {
     const container = document.getElementById('breakevenAnalysis');
     const annualEMI = monthlyEMI * 12;
@@ -310,10 +397,12 @@ function generateBreakevenTable(
     for (let year = 1; year <= maxYears; year++) {
         const currentCostPerUnit = initialCostPerUnit * Math.pow(inflationFactor, year - 1);
         const currentNetMeteringRate = initialNetMeteringRate * Math.pow(inflationFactor, year - 1);
-        const annualBillBefore_inflated = annualUnitsConsumed * currentCostPerUnit;
+        const currentAnnualAdditionalCharges = initialMonthlyAdditionalCharges * 12 * Math.pow(inflationFactor, year - 1); // Calculate inflated annual additional charges
+
+        const annualBillBefore_inflated = (annualUnitsConsumed * currentCostPerUnit) + currentAnnualAdditionalCharges; // Add inflated additional charges
         const annualCostOfImported_inflated = annualUnitsImported * currentCostPerUnit;
         const annualCreditForExported_inflated = annualUnitsExported * currentNetMeteringRate;
-        const annualBillAfter_inflated = annualCostOfImported_inflated - annualCreditForExported_inflated;
+        const annualBillAfter_inflated = (annualCostOfImported_inflated - annualCreditForExported_inflated) + currentAnnualAdditionalCharges; // Add inflated additional charges
         const currentAnnualSavings = annualBillBefore_inflated - annualBillAfter_inflated;
         const currentAnnualEMI = (year <= loanTenure && annualEMI > 0) ? annualEMI : 0;
         const netAnnualCashFlow = currentAnnualSavings - currentAnnualEMI;
@@ -360,13 +449,21 @@ function generateBreakevenTable(
 
 // --- New: Reset Form Function ---
 function resetForm() {
-    ['subsidyAmount','downPayment','loanTenure','interestRate','kwInstalled','unitsPerKwDay','avgUnitsConsumed','costPerUnit','additionalCharges','inflationRate','netMeteringRate']
+    ['subsidyAmount','downPayment','loanTenure','interestRate','kwInstalled','unitsPerKwDay','avgUnitsConsumed','costPerUnit','additionalCharges','inflationRate','netMeteringRate', 'manualKwInput']
     .forEach(id => {
         const el = document.getElementById(id);
-        if (el) { el.value = ''; el.classList.remove('input-error'); }
+        if (el) { 
+            el.value = ''; 
+            el.classList.remove('input-error'); 
+        }
     });
     const totalEl = document.getElementById('totalCost');
-    if (totalEl) totalEl.value = '';
+    if (totalEl) { 
+        totalEl.value = ''; 
+        totalEl.classList.remove('input-error');
+        totalEl.placeholder = "Enter project cost"; // Reset placeholder
+    }
+    document.getElementById('manualKwInputGroup').style.display = 'none'; // Hide manual kW input
     document.getElementById('errorMessage').style.display = 'none';
     document.getElementById('resultsSection').style.display = 'none';
     document.getElementById('initialMessage').style.display = 'block';
@@ -374,8 +471,16 @@ function resetForm() {
 
 // --- Hook Reset Button Onload ---
 window.onload = () => {
-    document.getElementById('kwInstalled').value = 3;
-    document.getElementById('totalCost').value = 230000;
+    document.getElementById('kwInstalled').value = '3'; // Set to a string to match option value
+    // Trigger change to ensure dependent logic runs (like setting totalCost based on map)
+    // and to correctly set initial state of manualKwInputGroup
+    const event = new Event('change');
+    document.getElementById('kwInstalled').dispatchEvent(event);
+    // The calculateSavings() will be called by the onchange event, which will populate totalCost
+    // So, direct setting of totalCost.value here might be overridden or redundant if not timed correctly.
+    // Instead, let calculateSavings handle the initial totalCost population based on kwInstalled.
+
+    // document.getElementById('totalCost').value = 230000; // Let calculateSavings handle this
     document.getElementById('subsidyAmount').value = 78000;
     document.getElementById('downPayment').value = 32000;
     document.getElementById('loanTenure').value = 10;

@@ -45,7 +45,7 @@
 body {
     font-family: 'Nunito Sans Expanded', sans-serif;
     line-height: 1.6;
-    background-color: var(--light-grey);
+    background: linear-gradient(to bottom right, var(--light-grey), var(--off-white));
     color: var(--dark-grey);
     min-height: 100vh;
     display: flex;
@@ -78,7 +78,7 @@ body {
 
 #main-content {
     padding: 35px 40px;
-    background-color: var(--off-white);
+    background: linear-gradient(to bottom right, var(--off-white), var(--white));
     flex-grow: 1;
 }
 
@@ -311,7 +311,7 @@ body {
 }
 
 .data-table th {
-    background-color: rgba(41, 128, 185, 0.1);
+    background: linear-gradient(to bottom right, rgba(41, 128, 185, 0.2), rgba(41, 128, 185, 0.05));
     font-weight: 600;
     font-size: 1em;
     color: var(--primary-dark);
@@ -380,7 +380,7 @@ body {
 
 #initialMessage {
     padding: 60px 30px;
-    background-color: var(--white);
+    background: linear-gradient(to bottom right, var(--white), rgba(243, 156, 18, 0.1));
     border-radius: 10px;
     box-shadow: var(--card-shadow);
     margin: 20px auto;

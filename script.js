@@ -138,35 +138,22 @@ function calculateSavings() {
         inputs.kwInstalled = actualKwInstalled; // Use selected fixed value
 
         // Auto-fill logic for totalCost based on fixed kW selection
-        if (kwCostMap.hasOwnProperty(actualKwInstalled)) {
-            let currentCostIsDefaultForSelectedKw = false;
-            if (!isNaN(userProvidedTotalCost)) {
-                 for (const kw in kwCostMap) {
-                    if (kwCostMap[kw] === userProvidedTotalCost && parseInt(kw) === actualKwInstalled) {
-                        currentCostIsDefaultForSelectedKw = true;
-                        break;
-                    }
-                 }
-            }
-
-            if (isNaN(userProvidedTotalCost) || !currentCostIsDefaultForSelectedKw || totalCostInput.value === '' || (totalCostInput.dataset.previousKw && totalCostInput.dataset.previousKw !== String(actualKwInstalled))) {
-                 totalCostInput.value = kwCostMap[actualKwInstalled];
-                 inputs.totalCost = kwCostMap[actualKwInstalled];
-                 userProvidedTotalCost = inputs.totalCost;
-            } else {
-                 inputs.totalCost = userProvidedTotalCost;
-            }
-            totalCostInput.dataset.previousKw = actualKwInstalled;
+        if (!isNaN(userProvidedTotalCost) && userProvidedTotalCost > 0) {
+            // If user has provided a valid manual total cost, use it
+            inputs.totalCost = userProvidedTotalCost;
+            // Optionally, update the input field if it was somehow different, though usually it's the source
+            // totalCostInput.value = userProvidedTotalCost; 
+        } else if (kwCostMap.hasOwnProperty(actualKwInstalled)) {
+            // Otherwise, if no valid manual cost, use the mapped cost for the selected kW
+            totalCostInput.value = kwCostMap[actualKwInstalled];
+            inputs.totalCost = kwCostMap[actualKwInstalled];
+            userProvidedTotalCost = inputs.totalCost; // Update userProvidedTotalCost for consistency
         } else {
-            // Should not happen with current dropdown, but for robustness
-            if (totalCostInput.value === '' || isNaN(userProvidedTotalCost)){
-                totalCostInput.placeholder = "Enter project cost manually";
-                inputs.totalCost = NaN; 
-             } else {
-                inputs.totalCost = userProvidedTotalCost; 
-             }
-             totalCostInput.dataset.previousKw = ''; 
+            // If kW is not in map and no manual cost, it remains NaN or as previously set
+            // totalCostInput.placeholder = "Enter project cost manually"; // Already handled if NaN
+            inputs.totalCost = NaN; // Or userProvidedTotalCost if it was entered but not > 0
         }
+        totalCostInput.dataset.previousKw = actualKwInstalled; // Keep track of kW for dynamic updates
     } else { // No selection or placeholder selected
         document.getElementById('manualKwInputGroup').style.display = 'none';
         // document.getElementById('manualKwInput').value = ''; // Clear if not manual

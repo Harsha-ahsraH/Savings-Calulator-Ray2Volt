@@ -52,6 +52,21 @@ body {
     flex-direction: column;
 }
 
+/* Base font for body text */
+body {
+    font-family: 'Nunito Sans';
+}
+
+/* Headings use League Spartan */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'League Spartan';
+}
+
+/* All other elements inherit from body */
+* {
+    font-family: inherit;
+}
+
 /* --- Layout --- */
 .calculator-wrapper {
     width: 100%;
@@ -105,6 +120,7 @@ body {
     font-size: 1.6em;
     margin-bottom: 5px;
     font-weight: 700;
+    font-family: 'League Spartan';
 }
 
 .sidebar-header p {
@@ -116,7 +132,7 @@ body {
 
 .sidebar-logo {
     display: block;
-    max-width: 180px;
+    max-width: 240px;
     height: auto;
     margin-bottom: 0;
     filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.1));
@@ -144,6 +160,7 @@ body {
     border-bottom: 2px solid var(--primary-light);
     text-align: left;
     position: relative;
+    font-family: 'League Spartan';
 }
 
 .input-form h2:first-of-type {
@@ -281,6 +298,7 @@ body {
     text-align: center;
     position: relative;
     padding-bottom: 12px;
+    font-family: 'League Spartan';
 }
 
 #main-content h2:after {
@@ -301,6 +319,7 @@ body {
     margin-bottom: 20px;
     padding-bottom: 8px;
     border-bottom: 2px solid var(--primary-light);
+    font-family: 'League Spartan';
 }
 
 .results-section {
@@ -398,7 +417,7 @@ body {
 
 #initialMessage {
     padding: 60px 30px;
-    background: linear-gradient(to bottom right, var(--white), rgba(243, 156, 18, 0.1));
+    background: linear-gradient(to bottom right, var(--white), rgba(255, 253, 231, 0.3));
     border-radius: 10px;
     box-shadow: var(--card-shadow);
     margin: 20px auto;
@@ -410,6 +429,7 @@ body {
     color: var(--primary-color);
     font-size: 2em;
     margin-bottom: 20px;
+    font-family: 'League Spartan';
 }
 
 #initialMessage p {
@@ -597,7 +617,7 @@ body {
     }
     
     .sidebar-logo {
-        max-width: 180px;
+        max-width: 240px;
     }
     
     /* Enlarge company name and tagline on mobile */

@@ -104,7 +104,6 @@ function calculateSavings() {
         6: 420000,
         8: 530000,
         10: 630000
-        // No values beyond 10kW as per requirement
     };
 
     const totalCostInput = document.getElementById('totalCost');
@@ -122,38 +121,37 @@ function calculateSavings() {
             const manKwEl = document.getElementById('manualKwInput');
             if(manKwEl) manKwEl.classList.add('input-error');
         }
-        inputs.kwInstalled = actualKwInstalled; // Use manual value
-        // For manual kW entry, totalCost is always manual, don't auto-fill from map
+        inputs.kwInstalled = actualKwInstalled;
+        // For manual kW entry, totalCost is always manual
         if (!isNaN(userProvidedTotalCost) && userProvidedTotalCost > 0) {
             inputs.totalCost = userProvidedTotalCost;
         } else {
-            inputs.totalCost = NaN; // Requires manual input or will be caught by validation
+            inputs.totalCost = NaN;
             totalCostInput.placeholder = "Enter project cost manually";
         }
         totalCostInput.dataset.previousKw = 'manual';
     } else if (kwSelectedOption && kwSelectedOption !== "") {
         document.getElementById('manualKwInputGroup').style.display = 'none';
-        document.getElementById('manualKwInput').value = ''; // Clear manual input
+        document.getElementById('manualKwInput').value = '';
         actualKwInstalled = parseInt(kwSelectedOption, 10);
-        inputs.kwInstalled = actualKwInstalled; // Use selected fixed value
+        inputs.kwInstalled = actualKwInstalled;
 
         // Auto-fill logic for totalCost based on fixed kW selection
-        if (!isNaN(userProvidedTotalCost) && userProvidedTotalCost > 0) {
-            // If user has provided a valid manual total cost, use it
-            inputs.totalCost = userProvidedTotalCost;
-            // Optionally, update the input field if it was somehow different, though usually it's the source
-            // totalCostInput.value = userProvidedTotalCost; 
-        } else if (kwCostMap.hasOwnProperty(actualKwInstalled)) {
-            // Otherwise, if no valid manual cost, use the mapped cost for the selected kW
-            totalCostInput.value = kwCostMap[actualKwInstalled];
-            inputs.totalCost = kwCostMap[actualKwInstalled];
-            userProvidedTotalCost = inputs.totalCost; // Update userProvidedTotalCost for consistency
+        if (kwCostMap.hasOwnProperty(actualKwInstalled)) {
+            // If no manual cost is provided or it's the first time selecting this kW
+            if (isNaN(userProvidedTotalCost) || userProvidedTotalCost <= 0 || 
+                totalCostInput.dataset.previousKw !== actualKwInstalled.toString()) {
+                totalCostInput.value = kwCostMap[actualKwInstalled];
+                inputs.totalCost = kwCostMap[actualKwInstalled];
+                userProvidedTotalCost = inputs.totalCost;
+            } else {
+                // Keep the user's manual cost if they've modified it
+                inputs.totalCost = userProvidedTotalCost;
+            }
         } else {
-            // If kW is not in map and no manual cost, it remains NaN or as previously set
-            // totalCostInput.placeholder = "Enter project cost manually"; // Already handled if NaN
-            inputs.totalCost = NaN; // Or userProvidedTotalCost if it was entered but not > 0
+            inputs.totalCost = isNaN(userProvidedTotalCost) ? NaN : userProvidedTotalCost;
         }
-        totalCostInput.dataset.previousKw = actualKwInstalled; // Keep track of kW for dynamic updates
+        totalCostInput.dataset.previousKw = actualKwInstalled.toString();
     } else { // No selection or placeholder selected
         document.getElementById('manualKwInputGroup').style.display = 'none';
         // document.getElementById('manualKwInput').value = ''; // Clear if not manual
@@ -207,7 +205,8 @@ function calculateSavings() {
 
     let monthlyEMI = 0;
     let totalLoanPaid = 0;
-    const numberOfMonths = inputs.loanTenure * 12;
+    let actualLoanTenure = inputs.loanTenure;
+    const numberOfMonths = actualLoanTenure * 12;
 
     if (loanAmount > 0 && numberOfMonths > 0) {
         const annualInterestRate = inputs.interestRate;
@@ -217,9 +216,48 @@ function calculateSavings() {
             const emiNumerator = loanAmount * monthlyInterestRate * powerTerm;
             const emiDenominator = powerTerm - 1;
             monthlyEMI = (emiDenominator > 0) ? (emiNumerator / emiDenominator) : (loanAmount / numberOfMonths);
-        } else { monthlyEMI = loanAmount / numberOfMonths; }
+        } else { 
+            monthlyEMI = loanAmount / numberOfMonths; 
+        }
         monthlyEMI = isNaN(monthlyEMI) ? 0 : Math.round(monthlyEMI * 100) / 100;
-        totalLoanPaid = monthlyEMI * numberOfMonths;
+
+        // Calculate reduced tenure if subsidy is repaid to loan
+        if (inputs.subsidyAmount > 0) {
+            // Calculate how many months it would take to repay the loan with the same EMI
+            // but with reduced principal (after subsidy repayment)
+            const reducedPrincipal = loanAmount - inputs.subsidyAmount;
+            if (reducedPrincipal > 0) {
+                const monthlyInterestRate = annualInterestRate / 12 / 100;
+                // Solve for n in EMI formula: EMI = P * r * (1 + r)^n / ((1 + r)^n - 1)
+                // where P = reducedPrincipal, r = monthlyInterestRate, EMI = monthlyEMI
+                let n = 0;
+                let left = 0;
+                let right = numberOfMonths;
+                const tolerance = 0.01; // 1% tolerance for floating point calculations
+                
+                while (right - left > tolerance) {
+                    n = (left + right) / 2;
+                    const powerTerm = Math.pow(1 + monthlyInterestRate, n);
+                    const calculatedEMI = reducedPrincipal * monthlyInterestRate * powerTerm / (powerTerm - 1);
+                    
+                    if (Math.abs(calculatedEMI - monthlyEMI) < tolerance) {
+                        break;
+                    } else if (calculatedEMI > monthlyEMI) {
+                        right = n;
+                    } else {
+                        left = n;
+                    }
+                }
+                
+                actualLoanTenure = Math.ceil(n / 12);
+                totalLoanPaid = monthlyEMI * Math.ceil(n);
+            } else {
+                actualLoanTenure = 0;
+                totalLoanPaid = 0;
+            }
+        } else {
+            totalLoanPaid = monthlyEMI * numberOfMonths;
+        }
         totalLoanPaid = Math.round(totalLoanPaid * 100) / 100;
     }
 
@@ -270,6 +308,9 @@ function calculateSavings() {
     addRow('Down Payment', formatCurrency(inputs.downPayment));
     addRow('Loan Amount Required', formatCurrency(loanAmount));
     addRow('Monthly Loan EMI', formatCurrency(monthlyEMI));
+    if (inputs.subsidyAmount > 0) {
+        addRow('Actual Loan Tenure (After Subsidy Repayment)', formatNumber(actualLoanTenure, 0, 'Years'));
+    }
     addRow('Total Amount Paid for Loan', formatCurrency(totalLoanPaid));
     addRow('Total Outlay (Down Payment + Loan Paid)', formatCurrency(totalOutlay));
     addRow('Estimated Annual Solar Generation', formatNumber(annualSolarGeneration, 0, 'kWh / Year'));

@@ -1,24 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Solar Savings Calculator - Ray2Volt Solar</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600;700&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Nunito+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="Ray2Volt Solar Pvt Ltd new logo for websites.png" type="image/png">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style type="text/tailwindcss">
-        body {
-          font-family: 'Nunito Sans';
-        }
-        h1, h2, h3, h4, h5, h6 {
-          font-family: 'League Spartan';
-        }
-      </style>
 </head>
+
 <body>
     <div class="calculator-wrapper">
         <aside id="sidebar">
@@ -26,14 +21,15 @@
                 <img src="logo.png" alt="Ray2Volt Solar Logo" class="sidebar-logo mb-0">
                 <p class="text-sm opacity-75">Solar Investment Calculator</p>
                 <p class="text-sm opacity-75">
-                    Interested in going solar with us? 
-                    <a href="https://ray2voltsolar.com" target="_blank" class="text-blue-500 hover:underline">Visit our website!</a>
+                    Interested in going solar with us?
+                    <a href="https://ray2voltsolar.com" target="_blank" class="text-blue-500 hover:underline">Visit our
+                        website!</a>
                 </p>
             </div>
-            
+
             <form id="solarForm" class="input-form" onsubmit="return false;">
                 <h2 class="font-bold">Project & Finance</h2>
-                
+
                 <div class="input-group">
                     <label for="kwInstalled" class="font-bold text-lg">Solar System Capacity:</label>
                     <select id="kwInstalled" onchange="calculateSavings()" class="text-lg">
@@ -52,68 +48,76 @@
                 </div>
                 <div class="input-group" id="manualKwInputGroup" style="display: none;">
                     <label for="manualKwInput" class="font-bold text-lg">Manual System Capacity (kW):</label>
-                    <input type="number" id="manualKwInput" placeholder="Enter kW (e.g., 12)" class="text-lg" step="0.1" oninput="calculateSavings()">
+                    <input type="number" id="manualKwInput" placeholder="Enter kW (e.g., 12)" class="text-lg" step="0.1"
+                        oninput="calculateSavings()">
                 </div>
-                
+
                 <div class="input-group">
                     <label for="totalCost" class="font-bold text-lg">Total Project Cost (₹):</label>
                     <input type="number" id="totalCost" placeholder="Enter project cost" class="text-lg">
                     <small>Auto-filled for 2-10 kW, editable. Enter manually for other capacities.</small>
                 </div>
-                
+
                 <div class="input-group">
                     <label for="subsidyAmount" class="font-bold text-lg">Subsidy Amount (₹):</label>
-                    <input type="number" id="subsidyAmount" step="100" required placeholder="e.g., 40000" value="0" class="text-lg">
+                    <input type="number" id="subsidyAmount" step="100" required placeholder="e.g., 40000" value="0"
+                        class="text-lg">
                 </div>
-                
+
                 <div class="input-group">
                     <label for="downPayment" class="font-bold text-lg">Down Payment (₹):</label>
                     <input type="number" id="downPayment" step="100" required placeholder="e.g., 50000" class="text-lg">
                 </div>
-                
+
                 <div class="input-group">
                     <label for="loanTenure" class="font-bold text-lg">Loan Tenure (Years):</label>
                     <input type="number" id="loanTenure" step="1" required placeholder="e.g., 5" class="text-lg">
                 </div>
-                
+
                 <div class="input-group">
                     <label for="interestRate" class="font-bold text-lg">Annual Interest Rate (%):</label>
                     <input type="number" id="interestRate" step="0.1" required placeholder="e.g., 9.5" class="text-lg">
                 </div>
 
                 <h2 class="font-bold">Energy Consumption</h2>
-                
+
                 <div class="input-group">
                     <label for="unitsPerKwDay" class="font-bold text-lg">Daily Units / kW (kWh):</label>
-                    <input type="number" id="unitsPerKwDay" step="0.1" required placeholder="e.g., 4.5" value="4.5" class="text-lg">
+                    <input type="number" id="unitsPerKwDay" step="0.1" required placeholder="e.g., 4.5" value="4.5"
+                        class="text-lg">
                 </div>
-                
+
                 <div class="input-group">
                     <label for="avgUnitsConsumed" class="font-bold text-lg">Monthly Consumption (kWh):</label>
-                    <input type="number" id="avgUnitsConsumed" step="1" required placeholder="e.g., 400" class="text-lg">
+                    <input type="number" id="avgUnitsConsumed" step="1" required placeholder="e.g., 400"
+                        class="text-lg">
                 </div>
-                
+
                 <div class="input-group">
                     <label for="costPerUnit" class="font-bold text-lg">Grid Cost / Unit (₹/kWh):</label>
                     <input type="number" id="costPerUnit" step="0.01" required placeholder="e.g., 7.50" class="text-lg">
                 </div>
-                
+
                 <div class="input-group">
                     <label for="additionalCharges" class="font-bold text-lg">Additional Charges (₹/month):</label>
-                    <input type="number" id="additionalCharges" step="0.01" required placeholder="e.g., 100" value="0" class="text-lg">
-                </div>
-                
-                <div class="input-group">
-                    <label for="inflationRate" class="font-bold text-lg">Electricity Inflation (%):</label>
-                    <input type="number" id="inflationRate" step="0.1" required placeholder="e.g., 4.0" value="4.0" class="text-lg">
-                </div>
-                
-                <div class="input-group">
-                    <label for="netMeteringRate" class="font-bold text-lg">Export Rate (₹/kWh):</label>
-                    <input type="number" id="netMeteringRate" step="0.01" required placeholder="e.g., 3.50" class="text-lg">
+                    <input type="number" id="additionalCharges" step="0.01" required placeholder="e.g., 100" value="0"
+                        class="text-lg">
                 </div>
 
-                <button type="button" onclick="calculateSavings()" class="calculate-btn font-bold">Calculate Savings</button>
+                <div class="input-group">
+                    <label for="inflationRate" class="font-bold text-lg">Electricity Inflation (%):</label>
+                    <input type="number" id="inflationRate" step="0.1" required placeholder="e.g., 4.0" value="4.0"
+                        class="text-lg">
+                </div>
+
+                <div class="input-group">
+                    <label for="netMeteringRate" class="font-bold text-lg">Export Rate (₹/kWh):</label>
+                    <input type="number" id="netMeteringRate" step="0.01" required placeholder="e.g., 3.50"
+                        class="text-lg">
+                </div>
+
+                <button type="button" onclick="calculateSavings()" class="calculate-btn font-bold">Calculate
+                    Savings</button>
                 <div id="errorMessage" class="error-message" style="display: none;"></div>
             </form>
         </aside>
@@ -160,18 +164,19 @@
 
     <script src="script.js"></script>
     <script>
-      MathJax = {
-        tex: {
-          inlineMath: [['\\(', '\\)'], ['$', '$']],
-          displayMath: [['\\[', '\\]']]
-        },
-        svg: {
-          fontCache: 'global'
-        }
-      };
+        MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)'], ['$', '$']],
+                displayMath: [['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
     </script>
     <script type="text/javascript" id="MathJax-script" async
-      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
-    </script>
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+        </script>
 </body>
+
 </html>

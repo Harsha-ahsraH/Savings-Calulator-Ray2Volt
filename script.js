@@ -8,21 +8,21 @@ function formatCurrency(value) {
 }
 
 // Function to format numbers
- function formatNumber(value, decimalPlaces = 2, unit = '') {
-     if (value === null || value === undefined || isNaN(value)) return "N/A";
-     const numValue = Number(value);
-      const options = { minimumFractionDigits: 0, maximumFractionDigits: decimalPlaces };
-     if (unit.toLowerCase().includes('year') && Number.isInteger(numValue)) {
-          options.maximumFractionDigits = 0;
-     } else if (!Number.isInteger(numValue) && decimalPlaces > 0) {
-          const actualDecimals = (numValue.toString().split('.')[1] || '').length;
-          options.minimumFractionDigits = Math.min(1, decimalPlaces, actualDecimals);
-          options.maximumFractionDigits = Math.min(decimalPlaces, actualDecimals);
-     } else if (Number.isInteger(numValue) && decimalPlaces === 0) {
-          options.maximumFractionDigits = 0;
-     }
-     let formatted = numValue.toLocaleString('en-IN', options);
-     return unit ? `${formatted} ${unit}` : formatted;
+function formatNumber(value, decimalPlaces = 2, unit = '') {
+    if (value === null || value === undefined || isNaN(value)) return "N/A";
+    const numValue = Number(value);
+    const options = { minimumFractionDigits: 0, maximumFractionDigits: decimalPlaces };
+    if (unit.toLowerCase().includes('year') && Number.isInteger(numValue)) {
+        options.maximumFractionDigits = 0;
+    } else if (!Number.isInteger(numValue) && decimalPlaces > 0) {
+        const actualDecimals = (numValue.toString().split('.')[1] || '').length;
+        options.minimumFractionDigits = Math.min(1, decimalPlaces, actualDecimals);
+        options.maximumFractionDigits = Math.min(decimalPlaces, actualDecimals);
+    } else if (Number.isInteger(numValue) && decimalPlaces === 0) {
+        options.maximumFractionDigits = 0;
+    }
+    let formatted = numValue.toLocaleString('en-IN', options);
+    return unit ? `${formatted} ${unit}` : formatted;
 }
 
 // Helper function to get color class based on value
@@ -66,7 +66,7 @@ function calculateSavings() {
 
         // Allow totalCost and manualKwInput to be potentially empty initially
         if ((id === 'totalCost' || id === 'manualKwInput') && (element.value === '' || element.value === null)) {
-            inputs[id] = NaN; 
+            inputs[id] = NaN;
         } else if (id === 'kwInstalled' && element.value === 'manual') {
             inputs[id] = 'manual'; // Store 'manual' string to signify manual mode
             document.getElementById('manualKwInputGroup').style.display = 'block';
@@ -84,7 +84,7 @@ function calculateSavings() {
         } else if (isNaN(value) || (value < 0 && !['interestRate', 'subsidyAmount', 'downPayment', 'inflationRate', 'netMeteringRate'].includes(id))) {
             element.classList.add('input-error');
             let fieldName = element.previousElementSibling.innerText.replace(/[:\d.]/g, '').trim();
-            if (id === 'manualKwInput' && (isNaN(value) || value <= 0)){
+            if (id === 'manualKwInput' && (isNaN(value) || value <= 0)) {
                 errors.push('Enter a valid Manual System Capacity (kW) > 0.');
             } else if (id === 'kwInstalled' && (isNaN(value) || value <= 0)) { // This should not be hit if 'manual' is selected
                 errors.push(`Enter a valid value for ${fieldName}.`);
@@ -119,7 +119,7 @@ function calculateSavings() {
         if (isNaN(actualKwInstalled) || actualKwInstalled <= 0) {
             errors.push("Enter a valid Manual System Capacity (kW) > 0.");
             const manKwEl = document.getElementById('manualKwInput');
-            if(manKwEl) manKwEl.classList.add('input-error');
+            if (manKwEl) manKwEl.classList.add('input-error');
         }
         inputs.kwInstalled = actualKwInstalled;
         // For manual kW entry, totalCost is always manual
@@ -139,7 +139,7 @@ function calculateSavings() {
         // Auto-fill logic for totalCost based on fixed kW selection
         if (kwCostMap.hasOwnProperty(actualKwInstalled)) {
             // If no manual cost is provided or it's the first time selecting this kW
-            if (isNaN(userProvidedTotalCost) || userProvidedTotalCost <= 0 || 
+            if (isNaN(userProvidedTotalCost) || userProvidedTotalCost <= 0 ||
                 totalCostInput.dataset.previousKw !== actualKwInstalled.toString()) {
                 totalCostInput.value = kwCostMap[actualKwInstalled];
                 inputs.totalCost = kwCostMap[actualKwInstalled];
@@ -173,18 +173,18 @@ function calculateSavings() {
     // Validate totalCost finally
     if (isNaN(inputs.totalCost) || inputs.totalCost <= 0) {
         const tcElement = document.getElementById('totalCost');
-        if(tcElement) tcElement.classList.add('input-error');
+        if (tcElement) tcElement.classList.add('input-error');
         if (!errors.some(e => e.includes("Total Project Cost") || e.includes("kW Installed Capacity"))) {
-             errors.push("Enter a valid Total Project Cost or select a kW capacity to auto-fill.");
+            errors.push("Enter a valid Total Project Cost or select a kW capacity to auto-fill.");
         }
     }
 
 
-     // Cross-Validations
-     if (!isNaN(inputs.subsidyAmount) && !isNaN(inputs.totalCost) && inputs.subsidyAmount > inputs.totalCost) { errors.push("Subsidy cannot exceed Total Cost."); }
-     const tempNetCost = inputs.totalCost - inputs.subsidyAmount;
-     if (!isNaN(inputs.downPayment) && !isNaN(tempNetCost) && inputs.downPayment > tempNetCost) { errors.push("Down Payment cannot exceed Net Cost."); }
-     if (!isNaN(inputs.loanTenure) && inputs.loanTenure <= 0 && (tempNetCost - inputs.downPayment) > 0) { errors.push("Loan Tenure must be > 0 if loan needed."); }
+    // Cross-Validations
+    if (!isNaN(inputs.subsidyAmount) && !isNaN(inputs.totalCost) && inputs.subsidyAmount > inputs.totalCost) { errors.push("Subsidy cannot exceed Total Cost."); }
+    const tempNetCost = inputs.totalCost - inputs.subsidyAmount;
+    if (!isNaN(inputs.downPayment) && !isNaN(tempNetCost) && inputs.downPayment > tempNetCost) { errors.push("Down Payment cannot exceed Net Cost."); }
+    if (!isNaN(inputs.loanTenure) && inputs.loanTenure <= 0 && (tempNetCost - inputs.downPayment) > 0) { errors.push("Loan Tenure must be > 0 if loan needed."); }
 
     if (errors.length > 0) {
         errorDiv.innerHTML = errors.join('<br>');
@@ -192,7 +192,7 @@ function calculateSavings() {
         resultsSection.style.display = 'none';
         initialMessage.style.display = 'block';
         const resultsTbody = document.getElementById('resultsTable').getElementsByTagName('tbody')[0];
-        if(resultsTbody) resultsTbody.innerHTML = '';
+        if (resultsTbody) resultsTbody.innerHTML = '';
         document.getElementById('monthlyCostsComparison').innerHTML = '';
         document.getElementById('breakevenAnalysis').innerHTML = '';
         return;
@@ -216,8 +216,8 @@ function calculateSavings() {
             const emiNumerator = loanAmount * monthlyInterestRate * powerTerm;
             const emiDenominator = powerTerm - 1;
             monthlyEMI = (emiDenominator > 0) ? (emiNumerator / emiDenominator) : (loanAmount / numberOfMonths);
-        } else { 
-            monthlyEMI = loanAmount / numberOfMonths; 
+        } else {
+            monthlyEMI = loanAmount / numberOfMonths;
         }
         monthlyEMI = isNaN(monthlyEMI) ? 0 : Math.round(monthlyEMI * 100) / 100;
 
@@ -234,12 +234,12 @@ function calculateSavings() {
                 let left = 0;
                 let right = numberOfMonths;
                 const tolerance = 0.01; // 1% tolerance for floating point calculations
-                
+
                 while (right - left > tolerance) {
                     n = (left + right) / 2;
                     const powerTerm = Math.pow(1 + monthlyInterestRate, n);
                     const calculatedEMI = reducedPrincipal * monthlyInterestRate * powerTerm / (powerTerm - 1);
-                    
+
                     if (Math.abs(calculatedEMI - monthlyEMI) < tolerance) {
                         break;
                     } else if (calculatedEMI > monthlyEMI) {
@@ -248,7 +248,7 @@ function calculateSavings() {
                         left = n;
                     }
                 }
-                
+
                 actualLoanTenure = Math.ceil(n / 12);
                 totalLoanPaid = monthlyEMI * Math.ceil(n);
             } else {
@@ -317,15 +317,15 @@ function calculateSavings() {
     addRow('Avg. Monthly Bill (Before Solar - Y1)', formatCurrency(avgMonthlyBillBefore_Y1));
     // Apply color to Avg Bill After if it's a credit (negative value)
     addRow('Avg. Monthly Bill (After Solar - Y1, Annualized)',
-           formatCurrency(avgMonthlyBillAfter_Y1) + (avgMonthlyBillAfter_Y1 < 0 ? ' (Avg. Credit)' : ''),
-           avgMonthlyBillAfter_Y1,
-           avgMonthlyBillAfter_Y1 < 0 // Only apply color if negative (credit)
+        formatCurrency(avgMonthlyBillAfter_Y1) + (avgMonthlyBillAfter_Y1 < 0 ? ' (Avg. Credit)' : ''),
+        avgMonthlyBillAfter_Y1,
+        avgMonthlyBillAfter_Y1 < 0 // Only apply color if negative (credit)
     );
-     // Apply color to Avg Savings if positive
+    // Apply color to Avg Savings if positive
     addRow('Avg. Monthly Savings (Y1, Annualized)',
-           formatCurrency(avgMonthlySavings_Y1),
-           avgMonthlySavings_Y1,
-           avgMonthlySavings_Y1 > 0 // Apply color if positive savings
+        formatCurrency(avgMonthlySavings_Y1),
+        avgMonthlySavings_Y1,
+        avgMonthlySavings_Y1 > 0 // Apply color if positive savings
     );
     addRow('Additional Charges (Monthly)', formatCurrency(additionalCharges));
 
@@ -354,14 +354,14 @@ function calculateSavings() {
 
 // --- Helper: Generate Monthly Comparison Table (Year 1 Average Snapshot) ---
 function generateMonthlyComparisonTable(avgBillBefore_Y1, avgBillAfter_Y1, emi, avgSavings_Y1) {
-     const container = document.getElementById('monthlyCostsComparison');
-     const additionalCharges = parseFloat(document.getElementById('additionalCharges').value) || 0; // Get additional charges here
-     const avgBillAfterPositive = Math.max(0, avgBillAfter_Y1);
-     const totalAvgMonthlyOutlay = avgBillAfterPositive + emi;
-     const netAvgMonthlyImpact = avgSavings_Y1 - emi;
-     const netImpactColorClass = getColorClass(netAvgMonthlyImpact); // Get color class
+    const container = document.getElementById('monthlyCostsComparison');
+    const additionalCharges = parseFloat(document.getElementById('additionalCharges').value) || 0; // Get additional charges here
+    const avgBillAfterPositive = Math.max(0, avgBillAfter_Y1);
+    const totalAvgMonthlyOutlay = avgBillAfterPositive + emi;
+    const netAvgMonthlyImpact = avgSavings_Y1 - emi;
+    const netImpactColorClass = getColorClass(netAvgMonthlyImpact); // Get color class
 
-     let tableHTML = `<table class="data-table">
+    let tableHTML = `<table class="data-table">
         <thead>
             <tr>
                 <th class="metric-col">Avg. Monthly Item (Year 1)</th>
@@ -377,7 +377,7 @@ function generateMonthlyComparisonTable(avgBillBefore_Y1, avgBillAfter_Y1, emi, 
             <tr><td class="metric-col"><strong>Net Avg. Monthly Impact</strong></td><td><strong><span class="${netImpactColorClass}">${formatCurrency(netAvgMonthlyImpact)} ${netAvgMonthlyImpact >= 0 ? '(Net Benefit)' : '(Net Cost)'}</span></strong></td></tr>
         </tbody>
      </table>`;
-     container.innerHTML = tableHTML;
+    container.innerHTML = tableHTML;
 }
 
 // --- Helper: Generate Breakeven Table (Uses Annual Figures & Inflation) ---
@@ -412,7 +412,7 @@ function generateBreakevenTable(
     if (netInitialCost <= 0) breakevenYearNum = 0;
 
     // Year 0 Row - Apply color to cumulative flow
-     tableHTML += `<tr class="${(breakevenYearNum === 0) ? 'highlight-row' : ''}">
+    tableHTML += `<tr class="${(breakevenYearNum === 0) ? 'highlight-row' : ''}">
                         <td>0</td>
                         <td>${formatCurrency(0)}</td>
                         <td>${formatCurrency(0)}</td>
@@ -457,19 +457,19 @@ function generateBreakevenTable(
     // Summary text generation
     let summary = '';
     let returnValue = '';
-     if (breakevenYearNum === 0) {
-         summary = "Immediate Breakeven (Net Project Cost ≤ 0).";
-         returnValue = "Immediate";
-     } else if (breakevenYearNum > 0) {
-         summary = `Financed Breakeven Occurs in Year ${breakevenYearNum}.`;
-         returnValue = formatNumber(breakevenYearNum, 0, 'Years');
-     } else if (initialAnnualSavings <= 0 && netInitialCost > 0 && inflationRate <= 0) {
-         summary = "Breakeven unlikely with no initial savings & no inflation.";
-         returnValue = "N/A (No Savings)";
-     } else {
-         summary = `Breakeven point not reached within ${maxYears} years.`;
-         returnValue = `> ${maxYears} Years`;
-     }
+    if (breakevenYearNum === 0) {
+        summary = "Immediate Breakeven (Net Project Cost ≤ 0).";
+        returnValue = "Immediate";
+    } else if (breakevenYearNum > 0) {
+        summary = `Financed Breakeven Occurs in Year ${breakevenYearNum}.`;
+        returnValue = formatNumber(breakevenYearNum, 0, 'Years');
+    } else if (initialAnnualSavings <= 0 && netInitialCost > 0 && inflationRate <= 0) {
+        summary = "Breakeven unlikely with no initial savings & no inflation.";
+        returnValue = "N/A (No Savings)";
+    } else {
+        summary = `Breakeven point not reached within ${maxYears} years.`;
+        returnValue = `> ${maxYears} Years`;
+    }
 
     container.innerHTML = tableHTML + `<p class="summary-text">${summary}</p>`;
     return returnValue;
@@ -477,17 +477,17 @@ function generateBreakevenTable(
 
 // --- New: Reset Form Function ---
 function resetForm() {
-    ['subsidyAmount','downPayment','loanTenure','interestRate','kwInstalled','unitsPerKwDay','avgUnitsConsumed','costPerUnit','additionalCharges','inflationRate','netMeteringRate', 'manualKwInput']
-    .forEach(id => {
-        const el = document.getElementById(id);
-        if (el) { 
-            el.value = ''; 
-            el.classList.remove('input-error'); 
-        }
-    });
+    ['subsidyAmount', 'downPayment', 'loanTenure', 'interestRate', 'kwInstalled', 'unitsPerKwDay', 'avgUnitsConsumed', 'costPerUnit', 'additionalCharges', 'inflationRate', 'netMeteringRate', 'manualKwInput']
+        .forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.value = '';
+                el.classList.remove('input-error');
+            }
+        });
     const totalEl = document.getElementById('totalCost');
-    if (totalEl) { 
-        totalEl.value = ''; 
+    if (totalEl) {
+        totalEl.value = '';
         totalEl.classList.remove('input-error');
         totalEl.placeholder = "Enter project cost"; // Reset placeholder
     }
@@ -524,3 +524,93 @@ window.onload = () => {
 
     document.getElementById('resetBtn').addEventListener('click', resetForm);
 };
+
+// --- Report Modal & Print Logic ---
+
+function openReportModal() {
+    const modal = document.getElementById('reportModal');
+    const reqGrid = document.getElementById('reqSummaryGrid');
+    const reportFinancial = document.getElementById('reportFinancialTable');
+    const reportMonthly = document.getElementById('reportMonthlyTable');
+    const reportBreakeven = document.getElementById('reportBreakevenTable');
+
+    // 0. Set Report Date
+    const dateEl = document.getElementById('reportDate');
+    if (dateEl) {
+        const now = new Date();
+        dateEl.textContent = 'Generated on ' + now.toLocaleDateString('en-IN', {
+            day: 'numeric', month: 'long', year: 'numeric'
+        });
+    }
+
+    // 1. Populate Requirements Summary
+    const inputs = {
+        'System Capacity': document.getElementById('kwInstalled').value === 'manual'
+            ? `${document.getElementById('manualKwInput').value} kW`
+            : `${document.getElementById('kwInstalled').value} kW`,
+        'Total Project Cost': formatCurrency(document.getElementById('totalCost').value),
+        'Subsidy': formatCurrency(document.getElementById('subsidyAmount').value),
+        'Down Payment': formatCurrency(document.getElementById('downPayment').value),
+        'Loan Tenure': `${document.getElementById('loanTenure').value} Years`,
+        'Interest Rate': `${document.getElementById('interestRate').value}%`,
+        'Monthly Consumption': `${document.getElementById('avgUnitsConsumed').value} kWh`,
+        'Grid Rate': `₹${document.getElementById('costPerUnit').value} / kWh`
+    };
+
+    let gridHTML = '';
+    for (const [label, value] of Object.entries(inputs)) {
+        gridHTML += `
+            <div class="req-item">
+                <span class="req-label">${label}</span>
+                <span class="req-value">${value}</span>
+            </div>
+        `;
+    }
+    reqGrid.innerHTML = gridHTML;
+
+    // 2. Clone Tables into report containers
+    const resultsTableOriginal = document.getElementById('resultsTable');
+    if (resultsTableOriginal) {
+        reportFinancial.innerHTML = '';
+        reportFinancial.appendChild(resultsTableOriginal.cloneNode(true));
+    }
+
+    const monthlyTableOriginal = document.querySelector('#monthlyCostsComparison table');
+    if (monthlyTableOriginal) {
+        reportMonthly.innerHTML = '';
+        reportMonthly.appendChild(monthlyTableOriginal.cloneNode(true));
+    }
+
+    const breakevenTableOriginal = document.querySelector('#breakevenAnalysis table');
+    if (breakevenTableOriginal) {
+        reportBreakeven.innerHTML = '';
+        reportBreakeven.appendChild(breakevenTableOriginal.cloneNode(true));
+
+        // Also clone the summary text
+        const breakevenSummaryOriginal = document.querySelector('#breakevenAnalysis .summary-text');
+        if (breakevenSummaryOriginal) {
+            reportBreakeven.appendChild(breakevenSummaryOriginal.cloneNode(true));
+        }
+    }
+
+    // 3. Show Modal
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+}
+
+function closeReportModal() {
+    const modal = document.getElementById('reportModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function printReport() {
+    window.print();
+}
+
+// Close modal when clicking outside
+document.getElementById('reportModal').addEventListener('click', function (e) {
+    if (e.target === this) {
+        closeReportModal();
+    }
+});

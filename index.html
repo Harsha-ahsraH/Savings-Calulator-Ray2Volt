@@ -27,6 +27,27 @@
                 </p>
             </div>
 
+            <!-- Calculator Mode Switcher -->
+            <div class="mode-switcher">
+                <button class="mode-btn active" id="capexModeBtn" onclick="switchCalculatorMode('capex')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                    CAPEX
+                </button>
+                <button class="mode-btn" id="rescoModeBtn" onclick="switchCalculatorMode('resco')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 20V10"></path>
+                        <path d="M12 20V4"></path>
+                        <path d="M6 20v-6"></path>
+                    </svg>
+                    RESCO
+                </button>
+            </div>
+
             <form id="solarForm" class="input-form" onsubmit="return false;">
                 <h2 class="font-bold">Project & Finance</h2>
 
@@ -120,6 +141,149 @@
                     Savings</button>
                 <div id="errorMessage" class="error-message" style="display: none;"></div>
             </form>
+
+            <!-- ========== RESCO FORM ========== -->
+            <form id="rescoForm" class="input-form" onsubmit="return false;" style="display: none;">
+                <h2 class="font-bold">Consumer Consumption & Billing</h2>
+
+                <div class="input-group">
+                    <label for="rescoMonthlyUnits" class="font-bold text-lg">Monthly Consumption (kWh):</label>
+                    <input type="number" id="rescoMonthlyUnits" step="1" required placeholder="e.g., 500"
+                        class="text-lg">
+                </div>
+
+                <div class="input-group">
+                    <label for="rescoCurrentBill" class="font-bold text-lg">Current Electricity Bill (₹/month):</label>
+                    <input type="number" id="rescoCurrentBill" step="1" required placeholder="e.g., 4000"
+                        class="text-lg">
+                </div>
+
+                <div class="input-group">
+                    <label for="rescoAdditionalCharges" class="font-bold text-lg">Additional Charges (₹/month):</label>
+                    <input type="number" id="rescoAdditionalCharges" step="1" placeholder="e.g., 100" value="0"
+                        class="text-lg">
+                </div>
+
+                <div class="input-group">
+                    <label for="rescoDiscomTariff" class="font-bold text-lg">DISCOM Tariff (₹/kWh):</label>
+                    <input type="number" id="rescoDiscomTariff" step="0.01" required placeholder="e.g., 8.00"
+                        class="text-lg">
+                </div>
+
+                <div class="input-group">
+                    <label for="rescoTariffEscalation" class="font-bold text-lg">DISCOM Tariff Escalation
+                        (%/yr):</label>
+                    <input type="number" id="rescoTariffEscalation" step="0.1" placeholder="e.g., 5" value="5"
+                        class="text-lg">
+                </div>
+
+                <h2 class="font-bold">RESCO Policy</h2>
+
+                <div class="input-group">
+                    <label for="rescoSystemCapacity" class="font-bold text-lg">System Capacity (kW):</label>
+                    <input type="number" id="rescoSystemCapacity" step="0.1" required placeholder="e.g., 10"
+                        class="text-lg">
+                </div>
+
+                <div class="input-group">
+                    <label for="rescoUnitsPerKwDay" class="font-bold text-lg">Daily Generation / kW (kWh):</label>
+                    <input type="number" id="rescoUnitsPerKwDay" step="0.1" placeholder="e.g., 4.2" value="4.2"
+                        class="text-lg">
+                </div>
+
+                <div class="input-group">
+                    <label for="rescoR2VTariff" class="font-bold text-lg">Ray2Volt Tariff (₹/kWh):</label>
+                    <input type="number" id="rescoR2VTariff" step="0.01" required placeholder="e.g., 5.50"
+                        class="text-lg">
+                    <small>Rate charged by Ray2Volt to the consumer for solar power.</small>
+                </div>
+
+                <div class="input-group">
+                    <label for="rescoR2VEscalation" class="font-bold text-lg">R2V Tariff Escalation (%/yr):</label>
+                    <input type="number" id="rescoR2VEscalation" step="0.1" placeholder="e.g., 3" value="3"
+                        class="text-lg">
+                </div>
+
+                <div class="input-group">
+                    <label for="rescoPPATenure" class="font-bold text-lg">PPA Tenure (Years):</label>
+                    <input type="number" id="rescoPPATenure" step="1" required placeholder="e.g., 25" value="25"
+                        class="text-lg">
+                </div>
+
+                <div class="input-group">
+                    <label for="rescoSecurityMonths" class="font-bold text-lg">Security Deposit (Months):</label>
+                    <input type="number" id="rescoSecurityMonths" step="1" placeholder="e.g., 3" value="3"
+                        class="text-lg">
+                    <small>Months of projected RESCO bill as security deposit.</small>
+                </div>
+
+                <h2 class="font-bold">System Cost to Ray2Volt</h2>
+
+                <div class="input-group">
+                    <label for="rescoSystemCost" class="font-bold text-lg">Total System Cost (₹):</label>
+                    <input type="number" id="rescoSystemCost" step="1" required placeholder="e.g., 500000"
+                        class="text-lg">
+                </div>
+
+                <div class="input-group">
+                    <label for="rescoOMCost" class="font-bold text-lg">Annual O&M Cost (₹):</label>
+                    <input type="number" id="rescoOMCost" step="1" placeholder="e.g., 5000" value="0" class="text-lg">
+                </div>
+
+                <div class="input-group">
+                    <label for="rescoOMEscalation" class="font-bold text-lg">O&M Escalation (%/yr):</label>
+                    <input type="number" id="rescoOMEscalation" step="0.1" placeholder="e.g., 5" value="5"
+                        class="text-lg">
+                </div>
+
+                <div class="input-group">
+                    <label for="rescoAMCCost" class="font-bold text-lg">Annual AMC Cost (₹):</label>
+                    <input type="number" id="rescoAMCCost" step="1" placeholder="e.g., 3000" value="0" class="text-lg">
+                </div>
+
+                <div class="input-group">
+                    <label for="rescoAMCEscalation" class="font-bold text-lg">AMC Escalation (%/yr):</label>
+                    <input type="number" id="rescoAMCEscalation" step="0.1" placeholder="e.g., 5" value="5"
+                        class="text-lg">
+                </div>
+
+                <div class="input-group">
+                    <label for="rescoPanelDegradation" class="font-bold text-lg">Panel Degradation (%/yr):</label>
+                    <input type="number" id="rescoPanelDegradation" step="0.1" placeholder="e.g., 0.5" value="0.5"
+                        class="text-lg">
+                </div>
+
+                <h2 class="font-bold">R2V Loan / Financing</h2>
+
+                <div class="input-group">
+                    <label for="rescoLoanAmount" class="font-bold text-lg">Loan Amount (₹):</label>
+                    <input type="number" id="rescoLoanAmount" step="1" placeholder="e.g., 400000" value="0"
+                        class="text-lg">
+                    <small>Leave 0 if no loan financing.</small>
+                </div>
+
+                <div class="input-group">
+                    <label for="rescoLoanTenure" class="font-bold text-lg">Loan Tenure (Years):</label>
+                    <input type="number" id="rescoLoanTenure" step="1" placeholder="e.g., 10" value="10"
+                        class="text-lg">
+                </div>
+
+                <div class="input-group">
+                    <label for="rescoMoratorium" class="font-bold text-lg">Moratorium Period (Months):</label>
+                    <input type="number" id="rescoMoratorium" step="1" placeholder="e.g., 6" value="0" class="text-lg">
+                    <small>Interest-only period before EMI starts.</small>
+                </div>
+
+                <div class="input-group">
+                    <label for="rescoLoanInterest" class="font-bold text-lg">Loan Interest Rate (%/yr):</label>
+                    <input type="number" id="rescoLoanInterest" step="0.1" placeholder="e.g., 9.5" value="9.5"
+                        class="text-lg">
+                </div>
+
+                <button type="button" onclick="calculateRESCO()" class="calculate-btn font-bold">Calculate
+                    RESCO</button>
+                <div id="rescoErrorMessage" class="error-message" style="display: none;"></div>
+            </form>
         </aside>
 
         <main id="main-content">
@@ -180,6 +344,35 @@
                 </div>
 
             </div> <!-- End Results Section -->
+
+            <!-- ========== RESCO RESULTS ========== -->
+            <div id="rescoResultsSection" class="results-section" style="display: none;">
+                <h2 class="font-bold">RESCO Model Analysis</h2>
+
+                <!-- Overall Summary Cards -->
+                <div id="rescoSummary" class="resco-summary-grid">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- Ray2Volt Breakeven Analysis -->
+                <h3 class="font-bold">Ray2Volt Breakeven Analysis</h3>
+                <div id="rescoR2VBreakeven" class="data-table-wrapper">
+                    <!-- Table generated by JS -->
+                </div>
+
+                <!-- Ray2Volt Cash Flow Analysis -->
+                <h3 class="font-bold">Ray2Volt Cash Flow Analysis</h3>
+                <div id="rescoR2VCashFlow" class="data-table-wrapper">
+                    <!-- Table generated by JS -->
+                </div>
+
+                <!-- Consumer Savings & Cash Flow -->
+                <h3 class="font-bold">Consumer Savings & Cash Flow</h3>
+                <div id="rescoConsumerSavings" class="data-table-wrapper">
+                    <!-- Table generated by JS -->
+                </div>
+
+            </div> <!-- End RESCO Results Section -->
         </main> <!-- End Main Content -->
     </div> <!-- End Calculator Wrapper -->
 

@@ -701,7 +701,8 @@ a:hover {
 
     .input-form input[type="number"],
     .input-form select {
-        font-size: 0.95em;
+        font-size: 16px;
+        /* Prevents iOS zoom on focus */
         padding: 10px 12px;
     }
 
@@ -710,20 +711,24 @@ a:hover {
         font-size: 0.95em;
     }
 
+    /* Horizontal scroll hint for data tables */
     .data-table-wrapper {
         position: relative;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-light);
     }
 
-    .data-table-wrapper:after {
+    .data-table-wrapper::after {
         content: '';
         position: absolute;
-        bottom: 0;
+        top: 0;
         right: 0;
-        width: 40px;
+        width: 32px;
         height: 100%;
-        background: linear-gradient(to right, rgba(248, 249, 250, 0), rgba(248, 249, 250, 0.9));
+        background: linear-gradient(to right, rgba(248, 249, 250, 0), rgba(248, 249, 250, 0.95));
         pointer-events: none;
         z-index: 1;
+        border-radius: 0 var(--radius-md) var(--radius-md) 0;
     }
 
     .data-table {
@@ -740,7 +745,21 @@ a:hover {
     }
 
     .summary-card-value {
+        font-size: 0.95em;
+    }
+
+    .summary-card-label {
+        font-size: 0.72em;
+    }
+
+    /* Report button mobile-friendly */
+    .report-btn-wrapper {
+        margin-top: 20px;
+    }
+
+    .report-btn {
         font-size: 0.9em;
+        padding: 12px 18px;
     }
 }
 
@@ -761,48 +780,59 @@ a:hover {
     }
 
     #main-content {
-        padding: 16px;
+        padding: 14px;
     }
 
     .sidebar-header {
-        margin-bottom: 18px;
+        margin-bottom: 16px;
+        padding-bottom: 14px;
     }
 
     .sidebar-logo {
-        max-width: 200px;
+        max-width: 180px;
     }
 
     .sidebar-header .company-name {
-        font-size: 1.2em;
+        font-size: 1.15em;
     }
 
     .sidebar-header p:not(.company-name) {
-        font-size: 1em;
+        font-size: 0.92em;
     }
 
     .input-group {
-        margin-bottom: 14px;
+        margin-bottom: 13px;
     }
 
     .input-form h2 {
-        font-size: 1em;
-        margin-bottom: 16px;
-        margin-top: 22px;
+        font-size: 0.95em;
+        margin-bottom: 14px;
+        margin-top: 20px;
+        padding-bottom: 8px;
     }
 
     .input-form label {
-        margin-bottom: 5px;
+        margin-bottom: 4px;
+        font-size: 0.88em;
     }
 
     .input-form input[type="number"],
     .input-form select {
-        padding: 9px 10px;
-        border-radius: var(--radius-sm);
+        padding: 10px 12px;
+        font-size: 16px;
+        /* Prevents iOS zoom */
+        border-radius: var(--radius-md);
+    }
+
+    .input-form small {
+        font-size: 0.75em;
     }
 
     .input-form button {
-        margin-top: 22px;
-        padding: 10px;
+        margin-top: 20px;
+        padding: 12px;
+        font-size: 0.95em;
+        border-radius: var(--radius-md);
     }
 
     .error-message {
@@ -810,56 +840,228 @@ a:hover {
         padding: 10px;
     }
 
-    #main-content h2 {
-        font-size: 1.2em;
+    /* Mode switcher compact */
+    .mode-switcher {
         margin-bottom: 18px;
     }
 
+    .mode-btn {
+        padding: 8px 10px;
+        font-size: 0.82em;
+    }
+
+    /* Results area */
+    .results-section {
+        padding: 12px;
+        border-radius: var(--radius-md);
+    }
+
+    #main-content h2 {
+        font-size: 1.15em;
+        margin-bottom: 16px;
+    }
+
     #main-content h2:after {
-        width: 50px;
+        width: 45px;
     }
 
     #main-content h3 {
-        font-size: 1em;
-        margin-top: 22px;
-        margin-bottom: 12px;
+        font-size: 0.95em;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+
+    /* Data tables for phone */
+    .data-table {
+        min-width: 480px;
     }
 
     .data-table th,
     .data-table td {
-        padding: 8px 10px;
-        font-size: 0.85em;
+        padding: 8px 8px;
+        font-size: 0.82em;
+        white-space: nowrap;
     }
 
+    .data-table th:first-child,
+    .data-table td:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background-color: var(--bg-card);
+    }
+
+    .data-table th:first-child {
+        background-color: var(--bg-page);
+    }
+
+    /* Summary text compact */
     .summary-text {
-        font-size: 0.9em;
-        margin-bottom: 18px;
+        font-size: 0.85em;
+        margin-bottom: 16px;
+        padding: 10px 12px;
+        line-height: 1.5;
     }
 
-    .data-table {
-        min-width: 580px;
-    }
-
+    /* RESCO Summary Cards - single column on phones */
     .resco-summary-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
         gap: 8px;
     }
 
     .summary-card {
-        padding: 12px 10px;
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+        gap: 12px;
+    }
+
+    .summary-card::before {
+        /* Change top bar to left bar for horizontal cards */
+        top: 0;
+        left: 0;
+        right: auto;
+        width: 3px;
+        height: 100%;
+        border-radius: var(--radius-lg) 0 0 var(--radius-lg);
     }
 
     .summary-card-icon {
-        font-size: 1.3em;
-        margin-bottom: 4px;
+        width: 36px;
+        height: 36px;
+        margin: 0;
+        flex-shrink: 0;
+    }
+
+    .summary-card-icon svg {
+        width: 18px;
+        height: 18px;
     }
 
     .summary-card-label {
-        font-size: 0.7em;
+        font-size: 0.68em;
+        margin-bottom: 2px;
     }
 
     .summary-card-value {
-        font-size: 0.82em;
+        font-size: 1em;
+    }
+
+    /* Disable hover transform on touch devices */
+    .summary-card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* Initial message */
+    #initialMessage {
+        padding: 24px 16px;
+        margin: 10px;
+    }
+
+    #initialMessage h2 {
+        font-size: 1.25em;
+    }
+
+    #initialMessage p {
+        font-size: 0.9em;
+    }
+
+    /* Report button */
+    .report-btn {
+        font-size: 0.85em;
+        padding: 10px 14px;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Very small phones (iPhone SE, Galaxy S8) */
+@media (max-width: 360px) {
+    body {
+        font-size: 12.5px;
+    }
+
+    #sidebar {
+        padding: 12px;
+    }
+
+    #main-content {
+        padding: 12px;
+    }
+
+    .sidebar-logo {
+        max-width: 160px;
+    }
+
+    .mode-btn {
+        padding: 7px 8px;
+        font-size: 0.78em;
+    }
+
+    .mode-btn svg {
+        width: 12px;
+        height: 12px;
+    }
+
+    .input-form h2 {
+        font-size: 0.9em;
+    }
+
+    .input-form label {
+        font-size: 0.84em;
+    }
+
+    .data-table {
+        min-width: 420px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 6px 6px;
+        font-size: 0.78em;
+    }
+
+    .summary-card {
+        padding: 12px 14px;
+        gap: 10px;
+    }
+
+    .summary-card-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .summary-card-icon svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .summary-card-label {
+        font-size: 0.64em;
+    }
+
+    .summary-card-value {
+        font-size: 0.9em;
+    }
+
+    .summary-text {
+        font-size: 0.8em;
+        padding: 8px 10px;
+    }
+
+    #main-content h2 {
+        font-size: 1.05em;
+    }
+
+    #main-content h3 {
+        font-size: 0.9em;
+    }
+
+    .results-section {
+        padding: 10px;
     }
 }
 

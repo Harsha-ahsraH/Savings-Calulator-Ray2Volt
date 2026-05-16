@@ -1633,7 +1633,7 @@ a:hover {
 @media print {
     @page {
         size: A4;
-        margin: 0;
+        margin: 0.6in;
     }
 
     /* Hide everything by default */
@@ -1708,7 +1708,7 @@ a:hover {
         width: 100% !important;
         min-height: 0 !important;
         height: auto !important;
-        padding: 15mm !important;
+        padding: 0 !important;
         /* Consistent buffer */
         box-shadow: none !important;
         border-radius: 0 !important;

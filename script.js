@@ -208,14 +208,22 @@ function calculateSavings() {
     let actualLoanTenure = inputs.loanTenure;
     const numberOfMonths = actualLoanTenure * 12;
 
+    const loanTypeElement = document.getElementById('loanType');
+    const loanType = loanTypeElement ? loanTypeElement.value : 'reducing';
+
     if (loanAmount > 0 && numberOfMonths > 0) {
         const annualInterestRate = inputs.interestRate;
         if (annualInterestRate > 0) {
-            const monthlyInterestRate = annualInterestRate / 12 / 100;
-            const powerTerm = Math.pow(1 + monthlyInterestRate, numberOfMonths);
-            const emiNumerator = loanAmount * monthlyInterestRate * powerTerm;
-            const emiDenominator = powerTerm - 1;
-            monthlyEMI = (emiDenominator > 0) ? (emiNumerator / emiDenominator) : (loanAmount / numberOfMonths);
+            if (loanType === 'flat') {
+                const totalInterest = loanAmount * (annualInterestRate / 100) * actualLoanTenure;
+                monthlyEMI = (loanAmount + totalInterest) / numberOfMonths;
+            } else {
+                const monthlyInterestRate = annualInterestRate / 12 / 100;
+                const powerTerm = Math.pow(1 + monthlyInterestRate, numberOfMonths);
+                const emiNumerator = loanAmount * monthlyInterestRate * powerTerm;
+                const emiDenominator = powerTerm - 1;
+                monthlyEMI = (emiDenominator > 0) ? (emiNumerator / emiDenominator) : (loanAmount / numberOfMonths);
+            }
         } else {
             monthlyEMI = loanAmount / numberOfMonths;
         }
@@ -227,30 +235,39 @@ function calculateSavings() {
             // but with reduced principal (after subsidy repayment)
             const reducedPrincipal = loanAmount - inputs.subsidyAmount;
             if (reducedPrincipal > 0) {
-                const monthlyInterestRate = annualInterestRate / 12 / 100;
-                // Solve for n in EMI formula: EMI = P * r * (1 + r)^n / ((1 + r)^n - 1)
-                // where P = reducedPrincipal, r = monthlyInterestRate, EMI = monthlyEMI
-                let n = 0;
-                let left = 0;
-                let right = numberOfMonths;
-                const tolerance = 0.01; // 1% tolerance for floating point calculations
+                if (loanType === 'flat') {
+                    const totalInterest = loanAmount * (annualInterestRate / 100) * actualLoanTenure;
+                    const originalTotalAmount = loanAmount + totalInterest;
+                    const newTotalAmount = originalTotalAmount - inputs.subsidyAmount;
+                    let n = newTotalAmount / monthlyEMI;
+                    actualLoanTenure = Math.ceil(n / 12);
+                    totalLoanPaid = monthlyEMI * Math.ceil(n);
+                } else {
+                    const monthlyInterestRate = annualInterestRate / 12 / 100;
+                    // Solve for n in EMI formula: EMI = P * r * (1 + r)^n / ((1 + r)^n - 1)
+                    // where P = reducedPrincipal, r = monthlyInterestRate, EMI = monthlyEMI
+                    let n = 0;
+                    let left = 0;
+                    let right = numberOfMonths;
+                    const tolerance = 0.01; // 1% tolerance for floating point calculations
 
-                while (right - left > tolerance) {
-                    n = (left + right) / 2;
-                    const powerTerm = Math.pow(1 + monthlyInterestRate, n);
-                    const calculatedEMI = reducedPrincipal * monthlyInterestRate * powerTerm / (powerTerm - 1);
+                    while (right - left > tolerance) {
+                        n = (left + right) / 2;
+                        const powerTerm = Math.pow(1 + monthlyInterestRate, n);
+                        const calculatedEMI = reducedPrincipal * monthlyInterestRate * powerTerm / (powerTerm - 1);
 
-                    if (Math.abs(calculatedEMI - monthlyEMI) < tolerance) {
-                        break;
-                    } else if (calculatedEMI > monthlyEMI) {
-                        right = n;
-                    } else {
-                        left = n;
+                        if (Math.abs(calculatedEMI - monthlyEMI) < tolerance) {
+                            break;
+                        } else if (calculatedEMI > monthlyEMI) {
+                            right = n;
+                        } else {
+                            left = n;
+                        }
                     }
-                }
 
-                actualLoanTenure = Math.ceil(n / 12);
-                totalLoanPaid = monthlyEMI * Math.ceil(n);
+                    actualLoanTenure = Math.ceil(n / 12);
+                    totalLoanPaid = monthlyEMI * Math.ceil(n);
+                }
             } else {
                 actualLoanTenure = 0;
                 totalLoanPaid = 0;
@@ -658,6 +675,9 @@ function calculateRESCO() {
     const moratoriumMonths = Math.round(inputs.rescoMoratorium) || 0;
     const loanInterest = inputs.rescoLoanInterest / 100;
 
+    const rescoLoanTypeElement = document.getElementById('rescoLoanType');
+    const rescoLoanType = rescoLoanTypeElement ? rescoLoanTypeElement.value : 'reducing';
+
     const baseAnnualGeneration = systemCapacity * unitsPerKwDay * 365;
     const annualConsumption = monthlyUnits * 12;
 
@@ -671,20 +691,33 @@ function calculateRESCO() {
     let loanPrincipalAfterMoratorium = loanAmount;
 
     if (loanAmount > 0 && loanTenure > 0) {
-        // During moratorium, interest accrues and is added to principal
         const monthlyRate = loanInterest / 12;
-        if (moratoriumMonths > 0 && monthlyRate > 0) {
-            loanPrincipalAfterMoratorium = loanAmount * Math.pow(1 + monthlyRate, moratoriumMonths);
+        if (rescoLoanType === 'flat') {
+            loanPrincipalAfterMoratorium = loanAmount;
+            totalLoanMonths = (loanTenure * 12) - moratoriumMonths;
+            if (totalLoanMonths > 0) {
+                const totalInterest = loanAmount * loanInterest * loanTenure;
+                const interestPaidDuringMoratorium = loanAmount * monthlyRate * moratoriumMonths;
+                monthlyEMI = (loanAmount + totalInterest - interestPaidDuringMoratorium) / totalLoanMonths;
+            } else {
+                monthlyEMI = 0;
+            }
+            monthlyEMI = isNaN(monthlyEMI) ? 0 : Math.round(monthlyEMI * 100) / 100;
+        } else {
+            // During moratorium, interest accrues and is added to principal
+            if (moratoriumMonths > 0 && monthlyRate > 0) {
+                loanPrincipalAfterMoratorium = loanAmount * Math.pow(1 + monthlyRate, moratoriumMonths);
+            }
+            // EMI repayment months (after moratorium)
+            totalLoanMonths = (loanTenure * 12) - moratoriumMonths;
+            if (totalLoanMonths > 0 && monthlyRate > 0) {
+                const powerTerm = Math.pow(1 + monthlyRate, totalLoanMonths);
+                monthlyEMI = loanPrincipalAfterMoratorium * monthlyRate * powerTerm / (powerTerm - 1);
+            } else if (totalLoanMonths > 0) {
+                monthlyEMI = loanPrincipalAfterMoratorium / totalLoanMonths;
+            }
+            monthlyEMI = isNaN(monthlyEMI) ? 0 : Math.round(monthlyEMI * 100) / 100;
         }
-        // EMI repayment months (after moratorium)
-        totalLoanMonths = (loanTenure * 12) - moratoriumMonths;
-        if (totalLoanMonths > 0 && monthlyRate > 0) {
-            const powerTerm = Math.pow(1 + monthlyRate, totalLoanMonths);
-            monthlyEMI = loanPrincipalAfterMoratorium * monthlyRate * powerTerm / (powerTerm - 1);
-        } else if (totalLoanMonths > 0) {
-            monthlyEMI = loanPrincipalAfterMoratorium / totalLoanMonths;
-        }
-        monthlyEMI = isNaN(monthlyEMI) ? 0 : Math.round(monthlyEMI * 100) / 100;
     }
 
     const annualEMI = monthlyEMI * 12;

@@ -100,6 +100,14 @@
                     <input type="number" id="interestRate" step="0.1" required placeholder="e.g., 9.5" class="text-lg">
                 </div>
 
+                <div class="input-group">
+                    <label for="loanType" class="font-bold text-lg">Loan Type:</label>
+                    <select id="loanType" class="text-lg">
+                        <option value="reducing" selected>Reducing Balance</option>
+                        <option value="flat">Flat Rate</option>
+                    </select>
+                </div>
+
                 <h2 class="font-bold">Energy Consumption</h2>
 
                 <div class="input-group">
@@ -278,6 +286,14 @@
                     <label for="rescoLoanInterest" class="font-bold text-lg">Loan Interest Rate (%/yr):</label>
                     <input type="number" id="rescoLoanInterest" step="0.1" placeholder="e.g., 9.5" value="9.5"
                         class="text-lg">
+                </div>
+
+                <div class="input-group">
+                    <label for="rescoLoanType" class="font-bold text-lg">Loan Type:</label>
+                    <select id="rescoLoanType" class="text-lg">
+                        <option value="reducing" selected>Reducing Balance</option>
+                        <option value="flat">Flat Rate</option>
+                    </select>
                 </div>
 
                 <button type="button" onclick="calculateRESCO()" class="calculate-btn font-bold">Calculate
